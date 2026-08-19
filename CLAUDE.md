@@ -29,6 +29,17 @@ El docente nombra el periférico y el puerto donde lo conectó. Ningún bloque e
 7. **Sin cambios especulativos.** Una discrepancia entre documento y código se reporta y se confirma. Nunca se corrige en silencio en ninguna de las dos direcciones.
 8. **Ninguna tarea arranca con una ambigüedad abierta que la toque.** La tabla está en `docs/ESPECIFICACION.md`. Si se avanza igual, el supuesto adoptado se escribe allí como tal.
 
+## Identificadores de bloque (GEN-6)
+
+- Un `blockId` publicado no se renombra ni se elimina nunca, aunque cambie
+  su texto visible (`block=`), su grupo, su ícono o su posición en la paleta.
+- El `blockId` se fija antes de mergear el bloque y se revisa con más cuidado
+  que el resto del código: no hay forma de corregirlo después sin romper los
+  programas ya guardados por los docentes.
+- Un bloque que se deja de recomendar se oculta (`deprecated`), nunca se
+  renombra ni se borra.
+- El `blockId` de un bloque retirado no se reutiliza para otra cosa.
+
 ## Idioma
 
 Todo lo visible al docente va en español, escrito así en el código fuente. Sin `_locales/`, sin capa de traducción.

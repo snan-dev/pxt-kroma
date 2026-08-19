@@ -1,24 +1,21 @@
+# KROMA
 
-> Open this page at [https://snan-dev.github.io/pxt-kroma/](https://snan-dev.github.io/pxt-kroma/)
+Extensión de MakeCode para la placa controladora y expansora de micro:bit
+de Plan Ceibal. Expone motores, servos, entradas analógicas, salidas
+digitales y sensor de distancia como bloques.
 
-## Use as Extension
+**En desarrollo.** Todavía no hay bloques publicados.
 
-This repository can be added as an **extension** in MakeCode.
+## Usar esta extensión
 
-* open [https://makecode.microbit.org/](https://makecode.microbit.org/)
-* click on **New Project**
-* click on **Extensions** under the gearwheel menu
-* search for **https://github.com/snan-dev/pxt-kroma** and import
+Este repositorio es una extensión de MakeCode. Se puede agregar directamente
+desde el editor de https://makecode.microbit.org, buscando
+`https://github.com/snan-dev/pxt-kroma`.
 
-## Edit this project
+## Documentación para el docente
 
-To edit this repository in MakeCode.
+Pendiente (Tarea 7).
 
-* open [https://makecode.microbit.org/](https://makecode.microbit.org/)
-* click on **Import** then click on **Import URL**
-* paste **https://github.com/snan-dev/pxt-kroma** and click import
+## Soporte
 
-#### Metadata (used for search, rendering)
-
-* for PXT/microbit
-<script src="https://makecode.com/gh-pages-embed.js"></script><script>makeCodeRender("{{ site.makecode.home_url }}", "{{ site.github.owner_name }}/{{ site.github.repository_name }}");</script>
+Pendiente.
