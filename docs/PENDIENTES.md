@@ -25,7 +25,9 @@ Surgen del relevamiento del esquemático (`HARDWARE.md`, sección 10). Son indep
 
 Cosas detectadas durante la implementación que no bloquean pero conviene atender.
 
-*(Vacío.)*
+| # | Hallazgo | Impacto | Estado |
+|---|---|---|---|
+| 1 | Los pines del expansor digital (PCA9536) para los puertos 1 y 3 en `TABLA_PUERTOS` (`tablas.ts` / `ARQUITECTURA.md` §4.1) estaban cruzados entre sí. Detectado por `revisor-placa` al cerrar la Tarea 1, comparando `HARDWARE.md` §5.2 con §5.4 (mismo método usado para derivar `canalPWM`). | Alto — afectaba a los bloques de DIG-1/DIG-2/DIG-3 (Tarea 2) para los puertos 1 y 3 | **Resuelto** — verificado físicamente con la placa (programa de prueba sobre el PCA9536, descartable): puerto 1 → pin 2, puerto 2 → pin 1, puerto 3 → pin 0, puerto 5 → pin 3. Corregido en `tablas.ts` y `ARQUITECTURA.md` §4.1. |
 
 ---
 

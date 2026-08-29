@@ -40,6 +40,16 @@ Las tablas de `ARQUITECTURA.md` sección 4 se apoyan en esta correspondencia. Si
 
 **Resultado:** Cumple. Puerto 4 → AIN2, puerto 6 → AIN0, puerto 1 → P0, coincidiendo con la correspondencia de la sección 4 de `ARQUITECTURA.md`. Verificado puenteando la línea analógica (contacto 6) directo a 3,3 V (contacto 8) y a GND (contacto 5) en cada puerto, con programa de prueba descartable (no versionado en el repositorio).
 
+**Adicional — línea digital del expansor (hallazgo 1 de `PENDIENTES.md`):** `revisor-placa` reportó, al cerrar la Tarea 1, que los pines del PCA9536 para los puertos 1 y 3 podían estar cruzados entre sí respecto de lo que decía `ARQUITECTURA.md` §4.1.
+
+**Qué conectar:** un LED con resistencia en serie entre el contacto 4 (línea digital) y el contacto 5 (GND) de los puertos 1, 2, 3 y 5.
+
+**Qué ejecutar:** programa descartable que enciende, uno por vez, cada uno de los cuatro pines de salida del PCA9536 (P0 a P3) y anuncia por el puerto serie cuál está activo.
+
+**Qué observar:** qué puerto enciende su LED en cada pin anunciado.
+
+**Resultado:** Cumple la hipótesis del cruce. Puerto 1 → pin 2, puerto 2 → pin 1, puerto 3 → pin 0, puerto 5 → pin 3. `TABLA_PUERTOS` y `ARQUITECTURA.md` §4.1 corregidos en consecuencia.
+
 ---
 
 ## V1 — Salidas digitales
@@ -77,3 +87,4 @@ Las tablas de `ARQUITECTURA.md` sección 4 se apoyan en esta correspondencia. Si
 | Fecha | Versión | Procedimientos ejecutados | Resultado | Observaciones |
 |---|---|---|---|---|
 | 2026-08-18 | — (sin código de extensión aún) | V0 | Cumple | Puerto 4→AIN2, puerto 6→AIN0, puerto 1→P0. Pinout de contactos 5/8 (GND/3,3V) confirmado idéntico en los seis puertos. |
+| 2026-08-28 | Tarea 1 | V0 (adicional, línea digital) | Cumple | Cruce del expansor confirmado: puerto 1→pin 2, puerto 2→pin 1, puerto 3→pin 0, puerto 5→pin 3. |

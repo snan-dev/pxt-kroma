@@ -12,7 +12,7 @@ Una discrepancia entre este documento y el código se reporta al desarrollador. 
 
 La distinción del punto 2 es deliberada: los identificadores de bloque son permanentes y las tablas propagan cualquier error a toda la extensión, así que ahí conviene la rigidez. Cómo un driver organiza su estado interno es reversible y contenido en un archivo, así que ahí alcanza con las convenciones de `SKILL.md`.
 
-> **Estado: versión inicial (pre-implementación).** Describe la arquitectura acordada, no código existente. Cada tarea del plan debe actualizar la parte descriptiva al cerrar.
+> **Estado: en implementación.** Tarea 0 y Tarea 1 cerradas con código; el resto de las tareas del plan sigue pendiente. Cada tarea que se cierre debe actualizar la parte descriptiva de este documento.
 
 ---
 
@@ -109,14 +109,14 @@ No son controlables por software, pero deben estar documentados en el README par
 
 | Puerto | Analógica: origen | Digital: origen | Canal PWM del PCA9685 |
 |---|---|---|---|
-| 1 | micro:bit P0 (10 bits) | Expansor, pin 0 | 2 |
+| 1 | micro:bit P0 (10 bits) | Expansor, pin 2 | 2 |
 | 2 | micro:bit P1 (10 bits) | Expansor, pin 1 | 1 |
-| 3 | micro:bit P2 (10 bits) | Expansor, pin 2 | 0 |
+| 3 | micro:bit P2 (10 bits) | Expansor, pin 0 | 0 |
 | 4 | ADS1015, canal 2 (12 bits) | micro:bit P9 | 3 |
 | 5 | ADS1015, canal 1 (12 bits) | Expansor, pin 3 | 4 |
 | 6 | ADS1015, canal 0 (12 bits) | micro:bit P12 | 5 |
 
-Notar los dos cruces: los canales del expansor y los del PCA9685 **no siguen el orden de los puertos**.
+Notar los dos cruces: los canales del expansor y los del PCA9685 **no siguen el orden de los puertos**. El cruce del expansor (puertos 1 y 3 con el pin invertido respecto de la lectura directa de `HARDWARE.md` §5.2) se verificó físicamente con la placa — ver el hallazgo 1 en `docs/PENDIENTES.md` y V0 en `docs/VERIFICACION.md`.
 
 ### 4.2 Motores
 
@@ -198,6 +198,19 @@ Ahorra una transacción I2C por operación y elimina una dependencia de lectura.
 ### 6.4 Nada de literales de mapeo fuera de `tablas.ts`
 
 Ningún módulo escribe un número de canal, un número de pin del expansor ni una dirección I2C. Todo se obtiene de `tablas.ts`. Los cruces documentados en la sección 4 son demasiado fáciles de equivocar como para repetirlos.
+
+### 6.5 Formato de las tablas para que `tools/check-tablas.js` las pueda leer
+
+`tools/check-tablas.js` verifica las tablas de correspondencia sin depender de compilar TypeScript ni de mantener una segunda copia de los datos (lo que prohibiría la sección 6.4). Lo logra leyendo `tablas.ts` como texto plano, así que cada tabla verificada por ese script debe respetar esta forma:
+
+- El literal de la tabla va delimitado por comentarios marcadores: `// @tabla:<nombre>:inicio` y `// @tabla:<nombre>:fin`, cada uno apareciendo exactamente una vez.
+- Entre esos marcadores el literal debe ser JavaScript puro además de TypeScript válido: sin `as const`, sin anotaciones de tipo dentro del literal, sin referencias simbólicas a un enum (siempre el valor numérico crudo, nunca `Puerto.Puerto1`).
+
+El script extrae el fragmento entre marcadores y lo evalúa con `new Function`. Cualquier tabla nueva que agregue una tarea futura y que `check-tablas.js` deba verificar tiene que seguir esta misma convención; los datos que no participan de ningún invariante (como `DIRECCIONES_I2C`) pueden ir fuera de los marcadores, con tipado normal de TypeScript.
+
+### 6.6 Todo el contenido de cada archivo vive dentro de `namespace kroma`
+
+Un archivo del paquete que declare `export` a nivel de archivo, sin envolverlo en un `namespace`, pasa a tratarse como módulo de TypeScript: sus símbolos no exportados quedan privados de ese archivo, invisibles para el resto del paquete. `tablas.ts` necesita `export` en sus tablas y enumerados para que `placa.ts` y los drivers los usen sin calificar, así que todo su contenido —enumerados incluidos— va dentro de `namespace kroma { ... }`, igual que `placa.ts`. Un archivo nuevo que agregue tablas o enumerados públicos debe seguir el mismo patrón.
 
 ---
 
