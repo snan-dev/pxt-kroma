@@ -2,7 +2,7 @@
 // Public blocks. Hardware logic lives in the driver modules
 // (motors.ts, servos.ts, analog.ts, digital.ts, ultrasonic.ts).
 // The first blocks are added starting with Task 2.
-//% color="#E3892B" icon="\uf544" block="KROMA"
+//% color="#E3892B" icon="\uf085" block="KROMA"
 namespace kroma {
     /**
      * Turns a port's digital line on or off.
