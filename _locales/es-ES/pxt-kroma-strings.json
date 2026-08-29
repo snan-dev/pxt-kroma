@@ -1,5 +1,7 @@
 {
-    "{id:group}Digital": "Digital",
+    "{id:subcategory}Input": "Entrada",
+    "{id:subcategory}Output": "Salida",
     "kroma.digitalOutput|block": "escribir en el puerto %port el valor %value",
-    "kroma.digitalInput|block": "leer estado digital del puerto %port"
+    "kroma.digitalInput|block": "leer estado digital del puerto %port",
+    "kroma.analogInput|block": "leer valor analógico del puerto %port"
 }

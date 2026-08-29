@@ -73,18 +73,22 @@ La más simple de las que tocan hardware. Valida todo el andamiaje: tablas, inic
 
 **Es la tarea de referencia.** Los patrones que se fijen acá se repiten en las siguientes, y el revisor los va a usar como base de comparación.
 
+**Retoque retroactivo (2026-08-29):** los bloques `digitalOutput`/`digitalInput` pasaron de `group="Digital"` a `subcategory="Output"`/`subcategory="Input"` al adoptarse la organización de paleta en subcategorías de `ARQUITECTURA.md` §2.1. Sin impacto en `blockId` (GEN-6) ni en criterios de aceptación.
+
 ---
 
 ## Tarea 3 — Entradas analógicas
 
 **Satisface:** ANA-1, ANA-2, ANA-3, ANA-4
-**Bloqueada por:** D1, D3, D6
+**Bloqueada por:** nada — D1, D3 y D6 (porción ANA) resueltas
 
 Driver del conversor por I2C para los puertos 4 a 6, y lectura de pin nativo para los puertos 1 a 3.
 
 **Criterios de aceptación:** los de ANA-1 a ANA-4 tal como están redactados, con los márgenes de tolerancia ya declarados en `ARQUITECTURA.md` como parte de la resolución de D6.
 
 **Cierre adicional:** las decisiones D1 y D3 quedan registradas con su fundamento en `ARQUITECTURA.md`, sección 8, y su estado pasa a resuelto en `ESPECIFICACION.md`.
+
+**Retoque retroactivo (2026-08-29):** `analogInput` pasó de `group="Analog"` a `subcategory="Input"` al adoptarse la organización de paleta en subcategorías de `ARQUITECTURA.md` §2.1. Sin impacto en `blockId` (GEN-6) ni en criterios de aceptación.
 
 ---
 

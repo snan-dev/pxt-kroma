@@ -12,7 +12,7 @@ Una discrepancia entre este documento y el código se reporta al desarrollador. 
 
 La distinción del punto 2 es deliberada: los identificadores de bloque son permanentes y las tablas propagan cualquier error a toda la extensión, así que ahí conviene la rigidez. Cómo un driver organiza su estado interno es reversible y contenido en un archivo, así que ahí alcanza con las convenciones de `SKILL.md`.
 
-> **Estado: en implementación.** Tarea 0, Tarea 1, Tarea 2 y Tarea 8 cerradas con código; el resto de las tareas del plan sigue pendiente. Tarea 8 se ejecutó como pasada temprana sobre el poco código existente (tablas y esqueleto): pasa el código fuente a inglés y agrega la capa de locale en español; las tareas 2 a 7 nacen directamente en inglés. Cada tarea que se cierre debe actualizar la parte descriptiva de este documento.
+> **Estado: en implementación.** Tarea 0, Tarea 1, Tarea 2, Tarea 3 y Tarea 8 cerradas con código; el resto de las tareas del plan sigue pendiente. Tarea 8 se ejecutó como pasada temprana sobre el poco código existente (tablas y esqueleto): pasa el código fuente a inglés y agrega la capa de locale en español; las tareas 2 a 7 nacen directamente en inglés. Cada tarea que se cierre debe actualizar la parte descriptiva de este documento.
 
 ---
 
@@ -44,6 +44,22 @@ mover motor A hacia adelante a velocidad 80
 ```
 
 Corolario: el número de puerto es un **enumerado único compartido por todos los bloques**. Un docente que aprendió a usar un bloque ya sabe usar los demás.
+
+### 2.1 Organización de la paleta en subcategorías
+
+A medida que la extensión sume sensores y actuadores en versiones futuras, agrupar los bloques solo con subtítulos visibles en un único panel se vuelve difícil de recorrer. La paleta de KROMA se organiza en subcategorías colapsadas —el atributo `subcategory` de PXT, la misma burbuja "..." que usa la categoría Radio del target de micro:bit para "Más", generalizada a varios nombres propios en vez de uno solo—, no en `group` planos siempre visibles.
+
+Subcategorías definidas hasta ahora, en este orden (nombre base en inglés por D4/Tarea 8; traducción en `_locales/es-ES/`):
+
+1. **Input** → "Entrada" — lecturas genéricas sin periférico propio (entrada digital, entrada analógica).
+2. **Output** → "Salida" — escritura/comando genérico (salida digital, salida analógica).
+3. **Motors** → "Motores".
+4. **Servos** → "Servos".
+5. **Distance** → "Distancia".
+
+Los bloques de un periférico específico (Motores, Servos, Distancia) van en su propia subcategoría aunque conceptualmente lean o escriban algo — el criterio es el periférico cuando hay uno identificable, y la dirección (lectura/escritura) solo para las capacidades genéricas de E/S sin periférico propio.
+
+El orden de las subcategorías se fija con `//% groups='[...]'` a nivel de namespace (string con JSON adentro, no un array de JS). Por ahora no hace falta `group` adentro de cada subcategoría — todas tienen uno o dos bloques —, pero el patrón admite agregarlo después sin romper nada, como hace `4tronix/BitBot` (github.com/4tronix/BitBot/blob/master/bitbot.ts) con sus subcategorías más cargadas. Verificar la sintaxis exacta contra ese archivo antes de implementar.
 
 ---
 
@@ -238,7 +254,7 @@ Un archivo del paquete que declare `export` a nivel de archivo, sin envolverlo e
 
 *(A completar durante la implementación. Cada tarea documenta acá su flujo.)*
 
-- **Leer valor analógico de un puerto:** pendiente
+- **Leer valor analógico de un puerto:** `board.ts` (`analogInput`) delega en `analog.ts` (`readAnalog`). Este busca el origen del puerto en `PORT_TABLE`. Si es nativo (puertos 1, 2, 3), lee con `pins.analogReadPin` (10 bits, 0–1023) y remapea a 0–100 (D1). Si es del ADS1015 (puertos 4, 5, 6), escribe el registro de configuración del canal correspondiente (MUX del canal, PGA=GAIN_ONE por D3, MODE=single-shot), espera un tiempo fijo con margen sobre el tiempo de conversión teórico, lee el registro de conversión (12 bits, 0–2047) y remapea a 0–100 con el mismo clamp defensivo que la rama nativa.
 - **Escribir en la línea digital de un puerto:** `board.ts` (`digitalOutput`) valida el puerto y delega en `digital.ts` (`setDigital`). Este busca el origen del puerto en `PORT_TABLE` (`tables.ts`). Si es nativo (puertos 4 y 6), escribe directo con `pins.digitalWritePin`. Si es del expansor (puertos 1, 2, 3, 5), primero asegura que el bit de dirección de ese pin en el PCA9536 esté en modo salida (espejo `configMirror`, cambiándolo solo si hace falta) y después escribe el registro de salida completo (espejo `outputMirror`, §6.3).
 - **Leer la línea digital de un puerto:** `board.ts` (`digitalInput`) delega en `digital.ts` (`readDigital`). Mismo origen por puerto que la escritura. Si es nativo, lee directo con `pins.digitalReadPin`. Si es del expansor, primero asegura que el bit de dirección de ese pin esté en modo entrada (mismo espejo `configMirror` que usa la escritura, cambiándolo solo si hace falta) y después lee el registro de entrada real del chip (0x00) — no el espejo de salida, que no aplica a la lectura.
 - **Mover un servo:** pendiente
@@ -267,8 +283,20 @@ Consecuencia práctica: los `blockId` no cambian — ya estaban en inglés y sin
 
 **Escala de la salida analógica (SAL-1).** 0 a 100, no 0 a 1023 como en los bloques nativos de Pines de MakeCode. Se prioriza que sea legible como "porcentaje de intensidad" para un docente sin formación técnica, por sobre la coherencia con el rango que usa `pins.analogWritePin` puertas adentro — GEN-2/principio de diseño del §2 pesan más acá que la familiaridad con otras extensiones de MakeCode. La conversión de 0–100 al rango nativo del micro:bit es responsabilidad del driver, no se expone.
 
+**D1 — Escala de la lectura analógica: 0 a 100 (resuelta 2026-08-29).** Los puertos 1 a 3 leen del ADC nativo del micro:bit (10 bits, 0–1023) y los puertos 4 a 6 del ADS1015 por I2C (12 bits); ANA-2 exige que el valor devuelto use la misma escala en los seis puertos, así que la única decisión pendiente era a qué escala normalizar. Se elige 0 a 100, por el mismo fundamento que ya se usó para la escala de salida de SAL-1 (párrafo anterior): legible como "porcentaje" para un docente sin formación técnica, y consistente con esa escala en la dirección opuesta (lectura y escritura analógica comparten el mismo lenguaje numérico). El remapeo de cada rango nativo a 0–100 es responsabilidad de `analog.ts`, no se expone.
+
+**D3 — Ganancia por defecto del ADS1015: GAIN_ONE, ±4,096 V (resuelta 2026-08-29).** `HARDWARE.md` §9 ("Implicancias para la extensión") ya da el criterio: fijar la ganancia en el rango más chico que contenga la tensión de trabajo esperada, para no perder resolución. La línea analógica (contacto 6 del RJ45) es la misma señal física en los seis puertos (`HARDWARE.md` §5.1); en los puertos 1 a 3 esa línea entra directo a un pin del micro:bit, que no tolera más de 3,3 V sin riesgo de daño — eso fija el techo de la señal en 3,3 V para los seis puertos, independientemente del periférico conectado. Confirmado también de forma empírica en V0 de `VERIFICACION.md`, que puenteó la línea analógica directo a 3,3 V para la prueba de orientación de las torres. De los pasos de ganancia estándar del ADS1015, GAIN_ONE (±4,096 V, ~2 mV por cuenta) es el más chico que sigue conteniendo 3,3 V con margen; GAIN_TWOTHIRDS (±6,144 V, ~3 mV por cuenta, el valor por defecto de varias librerías de terceros) da más margen del necesario a costa de resolución, sin que la señal lo requiera.
+
 ### Márgenes de tolerancia declarados
 
 Los criterios de aceptación de ANA-2, ANA-3, ANA-4, ULT-1 y ULT-3 hacen referencia a márgenes declarados en este documento. Se fijan al resolver D6 y se registran acá.
 
-*(Pendiente.)*
+**ANA-2, ANA-3, ANA-4 (resuelto 2026-08-29, D6 parcial — ver `ESPECIFICACION.md`).** Sobre la escala 0–100 de D1:
+
+- **ANA-2 (consistencia entre torres):** dos puertos con el mismo potenciómetro en la misma posición física no difieren en más de **3** puntos de escala (3% del rango).
+- **ANA-3 (monotonicidad):** un barrido lento no produce saltos hacia atrás mayores a **1** punto de escala entre lecturas consecutivas.
+- **ANA-4 (extremos estables):** en cada extremo del recorrido, veinte lecturas consecutivas se mantienen dentro de **1** punto de escala del valor extremo (0 o 100), sin saturar antes de llegar al tope.
+
+Son valores de partida razonables para un ADC de 10/12 bits con el ruido típico de una lectura por I2C corta, pero no surgen de una medición sobre la placa real ni de una cifra de `HARDWARE.md`: quedan **provisorios**, sujetos a ajuste en V2 (`VERIFICACION.md`) al cerrar la Tarea 3.
+
+**ULT-1, ULT-3:** sin resolver. D6 sigue abierta para estos dos criterios — se fija al planificar la Tarea 6, con el driver del sensor de distancia a la vista.

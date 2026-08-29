@@ -209,12 +209,12 @@ Una tarea **no arranca** si toca un requisito con una ambigüedad sin resolver. 
 
 | ID | Ambigüedad | Bloquea | Estado |
 |---|---|---|---|
-| D1 | Escala de la lectura analógica: ¿se normalizan los 10 y los 12 bits a una escala única, o se expone la diferencia? | ANA-2 | Abierta |
+| D1 | Escala de la lectura analógica: ¿se normalizan los 10 y los 12 bits a una escala única, o se expone la diferencia? | ANA-2 | **Resuelta (2026-08-29):** escala 0 a 100 en los seis puertos, por simetría con SAL-1. Ver `ARQUITECTURA.md` §8. |
 | D2 | ¿Existe lectura digital además de escritura? | DIG-4 | **Resuelta (revisada 2026-08-29):** sí entra en el alcance de la primera versión, simétrica a la escritura (mismo origen por puerto que DIG-1). Ver DIG-4 y Tarea 2 de `PLAN-DE-TAREAS.md`. |
-| D3 | Ganancia por defecto del conversor analógico | ANA-3, ANA-4 | Abierta |
+| D3 | Ganancia por defecto del conversor analógico | ANA-3, ANA-4 | **Resuelta (2026-08-29):** ganancia GAIN_ONE (±4,096 V) del ADS1015 — el rango más chico que contiene la tensión de trabajo esperada (3,3 V) sin saturar. Ver `ARQUITECTURA.md` §8. |
 | D4 | Idioma de las cadenas fuente | GEN-2, GEN-3 | **Resuelta (revisada 2026-08-29):** código fuente en inglés, con capa de localización en `_locales/es-ES/` para el docente. Ver `ARQUITECTURA.md` §8 y la Tarea 8 de `PLAN-DE-TAREAS.md`. |
 | D5 | Nombre definitivo del paquete y del repositorio | GEN-6 | **Resuelta:** paquete y repositorio `pxt-kroma`, nombre visible KROMA |
-| D6 | Margen de tolerancia declarado para ANA-2, ANA-3, ANA-4, ULT-1 y ULT-3 | ANA-2, ANA-3, ANA-4, ULT-1, ULT-3 | Abierta |
+| D6 | Margen de tolerancia declarado para ANA-2, ANA-3, ANA-4, ULT-1 y ULT-3 | ULT-1, ULT-3 | **Resuelta para ANA-2/3/4 (2026-08-29)**, ver `ARQUITECTURA.md` §8. Sigue **abierta para ULT-1 y ULT-3** — se resuelve al planificar la Tarea 6. |
 
 ---
 

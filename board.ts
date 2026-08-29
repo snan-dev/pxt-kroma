@@ -3,6 +3,7 @@
 // (motors.ts, servos.ts, analog.ts, digital.ts, ultrasonic.ts).
 // The first blocks are added starting with Task 2.
 //% color="#E3892B" icon="\uf085" block="KROMA"
+//% groups='["Input","Output","Motors","Servos","Distance"]'
 namespace kroma {
     /**
      * Turns a port's digital line on or off.
@@ -12,7 +13,7 @@ namespace kroma {
     //% blockId="kromaDigitalOutput"
     //% block="write digital port %port to %value"
     //% value.shadow="toggleOnOff"
-    //% group="Digital"
+    //% subcategory="Output"
     //% weight=100
     export function digitalOutput(port: Port, value: boolean): void {
         setDigital(port, value)
@@ -25,9 +26,22 @@ namespace kroma {
      */
     //% blockId="kromaDigitalInput"
     //% block="read digital port %port"
-    //% group="Digital"
+    //% subcategory="Input"
     //% weight=90
     export function digitalInput(port: Port): boolean {
         return readDigital(port)
+    }
+
+    /**
+     * Reads a port's analog input, on a 0-100 scale.
+     * @param port the port to read from
+     * @return a value from 0 (minimum) to 100 (maximum)
+     */
+    //% blockId="kromaAnalogInput"
+    //% block="read analog port %port"
+    //% subcategory="Input"
+    //% weight=100
+    export function analogInput(port: Port): number {
+        return readAnalog(port)
     }
 }
