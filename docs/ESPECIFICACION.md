@@ -67,6 +67,11 @@ Escribir en un puerto no altera el estado de ningún otro.
 
 **Aceptación:** con LEDs en los seis puertos y todos encendidos, apagar uno cualquiera deja los otros cinco encendidos. Repetir para los seis.
 
+### DIG-4 — Lectura en cualquier puerto *(agregado 2026-08-29, ver D2 revisada)*
+El docente puede leer el estado de la línea digital de cualquiera de los seis puertos.
+
+**Aceptación:** con un pulsador o una señal digital conocida conectada, el bloque de lectura devuelve un valor que refleja el estado real de la línea, en los seis puertos sin excepción.
+
 ---
 
 ## ANA — Entradas analógicas
@@ -186,7 +191,7 @@ Una tarea **no arranca** si toca un requisito con una ambigüedad sin resolver. 
 | ID | Ambigüedad | Bloquea | Estado |
 |---|---|---|---|
 | D1 | Escala de la lectura analógica: ¿se normalizan los 10 y los 12 bits a una escala única, o se expone la diferencia? | ANA-2 | Abierta |
-| D2 | ¿Existe lectura digital además de escritura? | — | **Resuelta:** fuera del alcance de la primera versión |
+| D2 | ¿Existe lectura digital además de escritura? | DIG-4 | **Resuelta (revisada 2026-08-29):** sí entra en el alcance de la primera versión, simétrica a la escritura (mismo origen por puerto que DIG-1). Ver DIG-4 y Tarea 2 de `PLAN-DE-TAREAS.md`. |
 | D3 | Ganancia por defecto del conversor analógico | ANA-3, ANA-4 | Abierta |
 | D4 | Idioma de las cadenas fuente | GEN-2, GEN-3 | **Resuelta (revisada 2026-08-29):** código fuente en inglés, con capa de localización en `_locales/es-ES/` para el docente. Ver `ARQUITECTURA.md` §8 y la Tarea 8 de `PLAN-DE-TAREAS.md`. |
 | D5 | Nombre definitivo del paquete y del repositorio | GEN-6 | **Resuelta:** paquete y repositorio `pxt-kroma`, nombre visible KROMA |
@@ -198,7 +203,6 @@ Una tarea **no arranca** si toca un requisito con una ambigüedad sin resolver. 
 
 Se listan para que quede constancia de que fueron consideradas y descartadas, no olvidadas.
 
-- Lectura digital de entradas (D2)
 - Control de la frecuencia de PWM de servos por parte del docente
 - Selección de ganancia del conversor por parte del docente
 - Lectura del estado de carga de la batería

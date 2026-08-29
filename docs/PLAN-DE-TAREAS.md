@@ -18,7 +18,7 @@ Toda la especificación está cubierta y ninguna tarea es huérfana.
 | GEN-2 | 7 (revisión global), 8 (verificado también en inglés) |
 | GEN-4, GEN-5 | 2 (patrón), verificado en 3 a 6 |
 | GEN-6 | 0, verificado en 8 |
-| DIG-1, DIG-2, DIG-3 | 2 |
+| DIG-1, DIG-2, DIG-3, DIG-4 | 2 |
 | ANA-1, ANA-2, ANA-3, ANA-4 | 3 |
 | SRV-1, SRV-2, SRV-3 | 4 |
 | MOT-1, MOT-2, MOT-3, MOT-4, MOT-5, MOT-6 | 5 |
@@ -59,15 +59,15 @@ Este último criterio importa: un verificador que nunca se probó contra un erro
 
 ---
 
-## Tarea 2 — Salidas digitales
+## Tarea 2 — Salidas y entradas digitales
 
-**Satisface:** DIG-1, DIG-2, DIG-3; establece el patrón para GEN-4 y GEN-5
+**Satisface:** DIG-1, DIG-2, DIG-3, DIG-4; establece el patrón para GEN-4 y GEN-5
 
-La más simple de las que tocan hardware. Valida todo el andamiaje: tablas, inicialización perezosa, separación entre bloque y driver, manejo del bus.
+La más simple de las que tocan hardware. Valida todo el andamiaje: tablas, inicialización perezosa, separación entre bloque y driver, manejo del bus. DIG-4 (lectura) se agrega por decisión de Santi del 2026-08-29 al reabrir D2: es simétrica a la escritura, mismo origen por puerto, mismo driver.
 
-**Criterios de aceptación:** los de DIG-1, DIG-2 y DIG-3 tal como están redactados en la especificación, más:
-- Un programa cuya única instrucción sea el bloque de escritura produce el efecto en la primera ejecución, sin ningún bloque previo (GEN-4).
-- El bloque no expone ningún nombre de chip, pin ni canal (GEN-2 en su porción).
+**Criterios de aceptación:** los de DIG-1, DIG-2, DIG-3 y DIG-4 tal como están redactados en la especificación, más:
+- Un programa cuya única instrucción sea el bloque de escritura, o cuya única instrucción sea el bloque de lectura, produce el efecto/resultado esperado en la primera ejecución, sin ningún bloque previo (GEN-4).
+- Ninguno de los dos bloques expone nombre de chip, pin ni canal (GEN-2 en su porción).
 - La categoría KROMA aparece en la paleta con su nombre e ícono, ahora que existe al menos un bloque exportado — verificación diferida desde la Tarea 0.
 
 **Es la tarea de referencia.** Los patrones que se fijen acá se repiten en las siguientes, y el revisor los va a usar como base de comparación.
