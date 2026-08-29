@@ -34,13 +34,6 @@ namespace kroma {
         initialized = true
     }
 
-    function findPortEntry(port: Port) {
-        for (let i = 0; i < PORT_TABLE.length; i++) {
-            if (PORT_TABLE[i].port === port) return PORT_TABLE[i]
-        }
-        return PORT_TABLE[0] // unreachable: every Port value has a row
-    }
-
     // tables.ts stores native pins as raw numbers so check-tablas.js can
     // parse them (§6.5); this converts to the DigitalPin enum pins.* expects.
     function nativePin(pin: number): DigitalPin {
@@ -51,7 +44,7 @@ namespace kroma {
         }
     }
 
-    export function setDigital(port: Port, value: boolean): void {
+    export function setDigital(port: number, value: boolean): void {
         ensureInitialized()
         let entry = findPortEntry(port)
         if (entry.digital.type === "native") {
@@ -68,7 +61,7 @@ namespace kroma {
         writeReg(REG_OUTPUT, outputMirror)
     }
 
-    export function readDigital(port: Port): boolean {
+    export function readDigital(port: number): boolean {
         ensureInitialized()
         let entry = findPortEntry(port)
         if (entry.digital.type === "native") {

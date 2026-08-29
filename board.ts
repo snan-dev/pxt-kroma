@@ -12,10 +12,11 @@ namespace kroma {
      */
     //% blockId="kromaDigitalOutput"
     //% block="write digital port %port to %value"
+    //% port.shadow="kromaPortShadow"
     //% value.shadow="toggleOnOff"
     //% subcategory="Output"
     //% weight=100
-    export function digitalOutput(port: Port, value: boolean): void {
+    export function digitalOutput(port: number, value: boolean): void {
         setDigital(port, value)
     }
 
@@ -26,9 +27,10 @@ namespace kroma {
      */
     //% blockId="kromaDigitalInput"
     //% block="read digital port %port"
+    //% port.shadow="kromaPortShadow"
     //% subcategory="Input"
     //% weight=90
-    export function digitalInput(port: Port): boolean {
+    export function digitalInput(port: number): boolean {
         return readDigital(port)
     }
 
@@ -39,9 +41,22 @@ namespace kroma {
      */
     //% blockId="kromaAnalogInput"
     //% block="read analog port %port"
+    //% port.shadow="kromaPortShadow"
     //% subcategory="Input"
     //% weight=100
-    export function analogInput(port: Port): number {
+    export function analogInput(port: number): number {
         return readAnalog(port)
+    }
+
+    // Default shadow block plugged into the port parameter of any block
+    // using the full 6-port enumeration (ARQUITECTURA.md §2.2). Being a
+    // real block (not an inlined field) is what lets a docente unplug the
+    // dropdown and plug in a variable, an expression, or a loop counter
+    // instead. Hidden from the picker: it only ever appears pre-plugged.
+    //% blockId="kromaPortShadow"
+    //% block="$port"
+    //% blockHidden=1
+    export function _portShadow(port: Port): number {
+        return port
     }
 }

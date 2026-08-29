@@ -15,13 +15,6 @@ namespace kroma {
         initialized = true
     }
 
-    function findPortEntry(port: Port) {
-        for (let i = 0; i < PORT_TABLE.length; i++) {
-            if (PORT_TABLE[i].port === port) return PORT_TABLE[i]
-        }
-        return PORT_TABLE[0] // unreachable: every Port value has a row
-    }
-
     // tables.ts stores native analog pins as raw numbers so check-tablas.js
     // can parse them (§6.5); this converts to the AnalogPin enum
     // pins.analogReadPin expects.
@@ -75,7 +68,7 @@ namespace kroma {
         return clamp(Math.round(raw * 100 / 2047))
     }
 
-    export function readAnalog(port: Port): number {
+    export function readAnalog(port: number): number {
         ensureInitialized()
         let entry = findPortEntry(port)
         if (entry.analog.type === "native") {

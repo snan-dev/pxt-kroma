@@ -61,6 +61,18 @@ Los bloques de un periférico específico (Motores, Servos, Distancia) van en su
 
 El orden de las subcategorías se fija con `//% groups='[...]'` a nivel de namespace (string con JSON adentro, no un array de JS). Por ahora no hace falta `group` adentro de cada subcategoría — todas tienen uno o dos bloques —, pero el patrón admite agregarlo después sin romper nada, como hace `4tronix/BitBot` (github.com/4tronix/BitBot/blob/master/bitbot.ts) con sus subcategorías más cargadas. Verificar la sintaxis exacta contra ese archivo antes de implementar.
 
+### 2.2 Puertos enchufables con un bloque (agregado 2026-08-29)
+
+El enumerado completo de seis puertos —el que comparten los bloques de entrada/salida digital, entrada analógica y, cuando se implemente, servos— no debe quedar limitado a elegir del desplegable: tiene que aceptar que se le enchufe otro bloque (una variable, una cuenta, el contador de un `for`), igual que el selector de pin de los bloques nativos de Pines de MakeCode. Sin esto, un docente no puede recorrer los seis puertos con un bucle, un ejercicio de introducción razonable con esta placa. Detectado por Santi al usar la extensión, no anticipado en la planificación original.
+
+Mecanismo verificado contra el código fuente real de `pxt-microbit` (`libs/core/pins.ts`) y la documentación oficial de PXT (`pxt/docs/defining-blocks.md`), no asumido: el parámetro del bloque público no se tipa como el enum — se tipa `number`, y se declara con `//% port.shadow=<blockId de una función auxiliar oculta>`. Esa función auxiliar (`blockHidden=1`, su propio `blockId`, con el desplegable como field editor) es lo que aparece por defecto en el socket; al ser un bloque real y no un campo incrustado, Blockly permite reemplazarlo por cualquier otro bloque que devuelva `number`. Mismo patrón que usa `_digitalPinShadow` en `pins.ts` para el selector de pin nativo.
+
+**Alcance: solo el enumerado completo de 6 puertos.** Los enumerados restringidos (puertos 4 y 6 únicamente, usados por el sensor de distancia y por la salida analógica) **no** se tocan — siguen siendo un desplegable puro, sin `shadow`. Volverlos enchufables reabriría exactamente lo que ULT-2 y SAL-2 impiden a propósito ("elegir otro puerto debe ser imposible, no fallar en silencio"): un valor plugueado no respeta el desplegable, así que un bloque de distancia o de salida analógica podría terminar recibiendo un puerto sin pin nativo. Decisión tomada con Santi el 2026-08-29 después de evaluar la alternativa de acotar en tiempo de ejecución también en los bloques restringidos, y descartarla por chocar directamente con esos dos criterios de aceptación ya cerrados.
+
+**Consecuencia para GEN-5.** El puerto pasa a ser, en la práctica, un argumento numérico más — GEN-5 ("valores fuera de rango... producen el mismo resultado que el extremo correspondiente") ya lo cubre sin necesidad de tocar `ESPECIFICACION.md`. Un valor plugueado fuera de 1–6 se acota al extremo más cercano (mismo criterio que ya usa SAL-1 para 0–100), no produce comportamiento indefinido. Centralizar el acotamiento en un solo lugar (por ejemplo, la función que busca la entrada del puerto en `PORT_TABLE`) en vez de repetirlo en cada bloque — mismo espíritu que §6.4.
+
+**Bloques a los que aplica:** `digitalOutput`, `digitalInput`, `analogInput` (retoque retroactivo sobre Tareas 2 y 3) y, de acá en más, cualquier bloque nuevo que use el enumerado completo de puertos — la Tarea 4 (Servos) nace directamente con este mecanismo, no hace falta retocarla después.
+
 ---
 
 ## 3. Restricciones de hardware que la arquitectura debe respetar
@@ -256,6 +268,8 @@ Un archivo del paquete que declare `export` a nivel de archivo, sin envolverlo e
 
 *(A completar durante la implementación. Cada tarea documenta acá su flujo.)*
 
+Desde §2.2, todo bloque que use el enumerado completo de 6 puertos recibe el parámetro de puerto como `number` (no `Port`), enchufable con `%port.shadow="kromaPortShadow"`. Antes de llegar al driver, `tables.ts` (`findPortEntry`) redondea el valor y lo acota a 1–6 (GEN-5) y ahí mismo busca la fila de `PORT_TABLE` — un solo lugar, compartido por `digital.ts` y `analog.ts`, en vez de que cada driver mantenga su propia copia de la búsqueda.
+
 - **Leer valor analógico de un puerto:** `board.ts` (`analogInput`) delega en `analog.ts` (`readAnalog`). Este busca el origen del puerto en `PORT_TABLE`. Si es nativo (puertos 1, 2, 3), lee con `pins.analogReadPin` (10 bits, 0–1023) y remapea a 0–100 (D1). Si es del ADS1015 (puertos 4, 5, 6), escribe el registro de configuración del canal correspondiente (MUX del canal, PGA=GAIN_ONE por D3, MODE=single-shot), espera un tiempo fijo con margen sobre el tiempo de conversión teórico, lee el registro de conversión (12 bits, 0–2047) y remapea a 0–100 con el mismo clamp defensivo que la rama nativa.
 - **Escribir en la línea digital de un puerto:** `board.ts` (`digitalOutput`) valida el puerto y delega en `digital.ts` (`setDigital`). Este busca el origen del puerto en `PORT_TABLE` (`tables.ts`). Si es nativo (puertos 4 y 6), escribe directo con `pins.digitalWritePin`. Si es del expansor (puertos 1, 2, 3, 5), primero asegura que el bit de dirección de ese pin en el PCA9536 esté en modo salida (espejo `configMirror`, cambiándolo solo si hace falta) y después escribe el registro de salida completo (espejo `outputMirror`, §6.3).
 - **Leer la línea digital de un puerto:** `board.ts` (`digitalInput`) delega en `digital.ts` (`readDigital`). Mismo origen por puerto que la escritura. Si es nativo, lee directo con `pins.digitalReadPin`. Si es del expansor, primero asegura que el bit de dirección de ese pin esté en modo entrada (mismo espejo `configMirror` que usa la escritura, cambiándolo solo si hace falta) y después lee el registro de entrada real del chip (0x00) — no el espejo de salida, que no aplica a la lectura.
@@ -302,3 +316,5 @@ Los criterios de aceptación de ANA-2, ANA-3, ANA-4, ULT-1 y ULT-3 hacen referen
 Son valores de partida razonables para un ADC de 10/12 bits con el ruido típico de una lectura por I2C corta, pero no surgen de una medición sobre la placa real ni de una cifra de `HARDWARE.md`: quedan **provisorios**, sujetos a ajuste en V2 (`VERIFICACION.md`) al cerrar la Tarea 3.
 
 **ULT-1, ULT-3:** sin resolver. D6 sigue abierta para estos dos criterios — se fija al planificar la Tarea 6, con el driver del sensor de distancia a la vista.
+
+**Puertos enchufables con bloque (2026-08-29).** Fundamento completo en §2.2. El enumerado completo de 6 puertos acepta que se le enchufe otro bloque (patrón `shadow` de PXT, verificado contra `pxt-microbit/libs/core/pins.ts`); los enumerados restringidos a 4/6 (distancia, salida analógica) no, para no romper ULT-2/SAL-2.

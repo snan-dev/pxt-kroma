@@ -1,5 +1,5 @@
-// Public enums and correspondence tables (pure data, no logic).
-// See docs/ARQUITECTURA.md §4 and §6.4-6.5.
+// Public enums, correspondence tables, and the shared port lookup helper.
+// See docs/ARQUITECTURA.md §4, §6.4-6.5 and §2.2.
 namespace kroma {
     export enum Port {
         //% block="1"
@@ -66,6 +66,22 @@ namespace kroma {
         { port: 6, analog: { type: "ads1015", channel: 0, bits: 12 }, digital: { type: "native", pin: 12 }, pwmChannel: 5 },
     ]
     // @table:ports:end
+
+    // Shared by every driver that resolves a port to its PORT_TABLE row
+    // (digital.ts, analog.ts), instead of each keeping its own copy (§6.4).
+    // With the port parameter now enchufable (§2.2), the value can be
+    // anything a plugged-in block returns, not just 1-6 from the dropdown;
+    // rounding and clamping to the nearest valid port here (GEN-5) is the
+    // one place that needs to know 1-6 is the whole range.
+    export function findPortEntry(port: number): PortEntry {
+        let rounded = Math.round(port)
+        if (rounded < 1) rounded = 1
+        if (rounded > 6) rounded = 6
+        for (let i = 0; i < PORT_TABLE.length; i++) {
+            if (PORT_TABLE[i].port === rounded) return PORT_TABLE[i]
+        }
+        return PORT_TABLE[0] // unreachable: rounded is always 1-6, and every value has a row
+    }
 
     // @table:motors:start
     export const MOTOR_TABLE = [

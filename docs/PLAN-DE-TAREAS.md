@@ -75,6 +75,8 @@ La más simple de las que tocan hardware. Valida todo el andamiaje: tablas, inic
 
 **Retoque retroactivo (2026-08-29):** los bloques `digitalOutput`/`digitalInput` pasaron de `group="Digital"` a `subcategory="Output"`/`subcategory="Input"` al adoptarse la organización de paleta en subcategorías de `ARQUITECTURA.md` §2.1. Sin impacto en `blockId` (GEN-6) ni en criterios de aceptación.
 
+**Segundo retoque retroactivo (2026-08-29):** el parámetro de puerto de ambos bloques pasa a aceptar un bloque enchufado (variable, cuenta, contador de `for`) además del desplegable, siguiendo el patrón `shadow` de `ARQUITECTURA.md` §2.2. Sin impacto en `blockId` ni en criterios de aceptación; GEN-5 ya cubre el acotamiento de valores fuera de 1–6.
+
 ---
 
 ## Tarea 3 — Entradas analógicas
@@ -89,6 +91,8 @@ Driver del conversor por I2C para los puertos 4 a 6, y lectura de pin nativo par
 **Cierre adicional:** las decisiones D1 y D3 quedan registradas con su fundamento en `ARQUITECTURA.md`, sección 8, y su estado pasa a resuelto en `ESPECIFICACION.md`.
 
 **Retoque retroactivo (2026-08-29):** `analogInput` pasó de `group="Analog"` a `subcategory="Input"` al adoptarse la organización de paleta en subcategorías de `ARQUITECTURA.md` §2.1. Sin impacto en `blockId` (GEN-6) ni en criterios de aceptación.
+
+**Segundo retoque retroactivo (2026-08-29):** el parámetro de puerto de `analogInput` pasa a aceptar un bloque enchufado, siguiendo el patrón `shadow` de `ARQUITECTURA.md` §2.2. Sin impacto en `blockId` ni en criterios de aceptación; GEN-5 ya cubre el acotamiento de valores fuera de 1–6.
 
 ---
 
