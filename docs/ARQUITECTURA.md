@@ -12,7 +12,7 @@ Una discrepancia entre este documento y el código se reporta al desarrollador. 
 
 La distinción del punto 2 es deliberada: los identificadores de bloque son permanentes y las tablas propagan cualquier error a toda la extensión, así que ahí conviene la rigidez. Cómo un driver organiza su estado interno es reversible y contenido en un archivo, así que ahí alcanza con las convenciones de `SKILL.md`.
 
-> **Estado: en implementación.** Tarea 0, Tarea 1 y Tarea 8 cerradas con código; el resto de las tareas del plan sigue pendiente. Tarea 8 se ejecutó como pasada temprana sobre el poco código existente (tablas y esqueleto): pasa el código fuente a inglés y agrega la capa de locale en español; las tareas 2 a 7 nacen directamente en inglés. Cada tarea que se cierre debe actualizar la parte descriptiva de este documento.
+> **Estado: en implementación.** Tarea 0, Tarea 1, Tarea 2 y Tarea 8 cerradas con código; el resto de las tareas del plan sigue pendiente. Tarea 8 se ejecutó como pasada temprana sobre el poco código existente (tablas y esqueleto): pasa el código fuente a inglés y agrega la capa de locale en español; las tareas 2 a 7 nacen directamente en inglés. Cada tarea que se cierre debe actualizar la parte descriptiva de este documento.
 
 ---
 
@@ -198,6 +198,8 @@ El expansor PCA9536 guarda los cuatro pines en un solo byte, de modo que cambiar
 
 Ahorra una transacción I2C por operación y elimina una dependencia de lectura. La copia se inicializa a cero durante `ensureInitialized()`, que es el estado real tras configurar el chip.
 
+El PCA9536 (usado por `digital.ts`, Tarea 2) además mantiene un segundo espejo, de dirección por pin (`configMirror`), porque sus pines individuales pueden ser entrada o salida y sus salidas son push-pull. Ver el fundamento completo en la sección 8, "Dirección de pines del PCA9536 en `digital.ts`".
+
 ### 6.4 Nada de literales de mapeo fuera de `tables.ts`
 
 Ningún módulo escribe un número de canal, un número de pin del expansor ni una dirección I2C. Todo se obtiene de `tables.ts`. Los cruces documentados en la sección 4 son demasiado fáciles de equivocar como para repetirlos.
@@ -222,7 +224,8 @@ Un archivo del paquete que declare `export` a nivel de archivo, sin envolverlo e
 *(A completar durante la implementación. Cada tarea documenta acá su flujo.)*
 
 - **Leer valor analógico de un puerto:** pendiente
-- **Escribir en la línea digital de un puerto:** pendiente
+- **Escribir en la línea digital de un puerto:** `board.ts` (`digitalOutput`) valida el puerto y delega en `digital.ts` (`setDigital`). Este busca el origen del puerto en `PORT_TABLE` (`tables.ts`). Si es nativo (puertos 4 y 6), escribe directo con `pins.digitalWritePin`. Si es del expansor (puertos 1, 2, 3, 5), primero asegura que el bit de dirección de ese pin en el PCA9536 esté en modo salida (espejo `configMirror`, cambiándolo solo si hace falta) y después escribe el registro de salida completo (espejo `outputMirror`, §6.3).
+- **Leer la línea digital de un puerto:** `board.ts` (`digitalInput`) delega en `digital.ts` (`readDigital`). Mismo origen por puerto que la escritura. Si es nativo, lee directo con `pins.digitalReadPin`. Si es del expansor, primero asegura que el bit de dirección de ese pin esté en modo entrada (mismo espejo `configMirror` que usa la escritura, cambiándolo solo si hace falta) y después lee el registro de entrada real del chip (0x00) — no el espejo de salida, que no aplica a la lectura.
 - **Mover un servo:** pendiente
 - **Mover un motor:** pendiente
 - **Leer distancia:** pendiente
@@ -242,6 +245,8 @@ Cada tarea que resuelve una ambigüedad deja acá el fundamento y cambia su esta
 Consecuencia práctica: los `blockId` no cambian — ya estaban en inglés y sin acentos por ser identificadores no visibles y estables (GEN-6); esta revisión no los toca. Lo que antes era español directo en el atributo `block` y afines pasa a inglés, y el español que el docente sigue viendo en el editor (cuando este está configurado en español) sale ahora del archivo de locale, no del código fuente. El detalle de alcance, generación del archivo de traducción y verificación queda en la Tarea 8 de `PLAN-DE-TAREAS.md`.
 
 **D5 — Nombre.** Paquete y repositorio `pxt-kroma`. Nombre visible en el editor: KROMA.
+
+**Dirección de pines del PCA9536 en `digital.ts` (Tarea 2).** El documento de implementación de la Tarea 2 asumía, siguiendo el código de prueba del proveedor, que el registro de configuración del PCA9536 se fija una sola vez en el arranque con los 4 pines como salida y no se vuelve a tocar. Al implementar se encontró una discrepancia: el datasheet de NXP confirma que las salidas del PCA9536 son push-pull (no quasi-bidireccionales), así que un pin dejado permanentemente como salida competiría eléctricamente con un dispositivo externo (por ejemplo, un pulsador) en vez de sensarlo — esto rompería el criterio de aceptación de DIG-4 en los puertos 1, 2, 3 y 5 (los que pasan por el expansor). Se reportó a Santi con dos alternativas y se confirmó la opción de agregar un segundo espejo en memoria, `configMirror`, que cambia el bit de dirección de un pin puntual a entrada antes de leerlo (`readDigital`) y a salida antes de escribirlo (`setDigital`), dejando los otros tres pines intactos — el patrón estándar para expansores I2C bidireccionales. El valor inicial de `configMirror` (0x0F, los 4 pines como entrada) coincide con el estado real de encendido del chip.
 
 ### Márgenes de tolerancia declarados
 

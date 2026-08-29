@@ -1,2 +1,5 @@
 {
+    "{id:group}Digital": "Digital",
+    "kroma.digitalOutput|block": "escribir en el puerto %port el valor %value",
+    "kroma.digitalInput|block": "leer estado digital del puerto %port"
 }

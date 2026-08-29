@@ -1,2 +1,4 @@
 {
+    "kroma.digitalOutput": "Enciende o apaga la línea digital de un puerto.",
+    "kroma.digitalInput": "Lee el estado de la línea digital de un puerto."
 }
