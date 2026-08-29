@@ -32,8 +32,8 @@ Leé, en este orden:
 
 El error más probable y más caro de este proyecto. Los canales del expansor digital y los del driver de servos están cruzados respecto del número de puerto, y los rótulos de motor A y B están cruzados respecto del esquemático.
 
-- ¿Aparece algún número de canal, pin de expansor o dirección I2C fuera de `tablas.ts`? Es un hallazgo importante, aunque el número sea correcto.
-- ¿Los valores de `tablas.ts` coinciden con la sección 4 de `docs/ARQUITECTURA.md`?
+- ¿Aparece algún número de canal, pin de expansor o dirección I2C fuera de `tables.ts`? Es un hallazgo importante, aunque el número sea correcto.
+- ¿Los valores de `tables.ts` coinciden con la sección 4 de `docs/ARQUITECTURA.md`?
 - ¿`tools/check-tablas.js` cubre las invariantes o quedó desactualizado respecto de las tablas?
 
 ### 2. Restricciones de hardware
@@ -46,14 +46,14 @@ El error más probable y más caro de este proyecto. Los canales del expansor di
 
 ### 3. Separación de responsabilidades
 
-- ¿`placa.ts` contiene solamente anotaciones, validación y delegación?
+- ¿`board.ts` contiene solamente anotaciones, validación y delegación?
 - ¿Algún bloque público habla I2C directamente?
 - ¿Algún driver define bloques públicos?
 
 ### 4. Inicialización
 
 - ¿Cada driver tiene su bandera de inicialización y es idempotente?
-- ¿Toda función pública de driver llama a `asegurarInicializado()` antes de tocar el hardware?
+- ¿Toda función pública de driver llama a `ensureInitialized()` antes de tocar el hardware?
 
 ### 5. Uso del bus I2C
 

@@ -15,9 +15,9 @@ Toda la especificación está cubierta y ninguna tarea es huérfana.
 | Requisito | Tarea |
 |---|---|
 | GEN-1, GEN-3 | 1 |
-| GEN-2 | 7 (revisión global) |
+| GEN-2 | 7 (revisión global), 8 (verificado también en inglés) |
 | GEN-4, GEN-5 | 2 (patrón), verificado en 3 a 6 |
-| GEN-6 | 0 |
+| GEN-6 | 0, verificado en 8 |
 | DIG-1, DIG-2, DIG-3 | 2 |
 | ANA-1, ANA-2, ANA-3, ANA-4 | 3 |
 | SRV-1, SRV-2, SRV-3 | 4 |
@@ -127,11 +127,47 @@ ULT-2 se verifica mirando el selector del bloque en el editor, no probando que f
 
 **Satisface:** DOC-1, DOC-2, GEN-2 completo
 
-README para el docente, protocolo de verificación consolidado, y revisión de toda la superficie pública de una sola pasada con `revisor-didactico-kroma`.
+README para el docente, protocolo de verificación consolidado, y revisión de toda la superficie pública de una sola pasada con `revisor-didactico`.
 
 **Criterios de aceptación:** los de DOC-1 y DOC-2 tal como están redactados, más:
 - Una búsqueda de vocabulario técnico sobre todas las cadenas visibles no devuelve resultados (GEN-2).
 - Todo requisito de la especificación tiene su tarea marcada como cerrada, y toda tarea cerrada cita los requisitos que satisfizo.
+
+---
+
+## Tarea 8 — Traducción a inglés y capa de localización en español
+
+**Satisface:** D4 (revisada 2026-08-29), GEN-2 y GEN-3 (verificados también sobre el inglés), GEN-6 (verificación de que no se rompe)
+**Bloqueada por:** nada de forma estricta. Se puede ejecutar de forma incremental, archivo por archivo, a medida que cada tarea (2 a 7) se va cerrando, o como pasada final una vez cerrada la Tarea 7. Si se hace incremental, cada tarea que toque bloques nuevos nace directamente en inglés con su entrada en el locale, en vez de traducirse después.
+
+Contexto: D4 se revierte por decisión consciente de Santi, tomada el 2026-08-29. El código fuente pasa a ser en inglés (incluida la superficie visible al docente); el español para el docente se preserva vía `_locales/es-ES/` (`es-ES` es el código de locale que usa el target `microbit`, no `es`; verificado contra `pxtarget.json` y contra `pxt-neopixel` como paquete de referencia ya localizado). Ver `ARQUITECTURA.md` §8.
+
+**Alcance:**
+
+1. **Código interno → inglés.** Todo identificador no visible (variables, funciones) y todo comentario de código pasa a inglés. Ejemplo tomado de `ARQUITECTURA.md` §6.2: `inicializado` → `initialized`, `asegurarInicializado()` → `ensureInitialized()`. Evaluar también traducir los nombres de archivo (`motores.ts` → `motors.ts`, `servos.ts` → `servos.ts`, `analogico.ts` → `analog.ts`, `digital.ts` → `digital.ts`, `ultrasonido.ts` → `ultrasonic.ts`, `tablas.ts` → `tables.ts`, `placa.ts` → `board.ts`). Renombrar archivos no rompe `blockId` ni proyectos guardados de docentes — solo hay que actualizar los imports/referencias internas.
+
+2. **Superficie pública de bloques → inglés como idioma base.**
+   - El atributo `block="..."` de cada bloque pasa de español a inglés.
+   - Nombres de parámetro visibles, rótulos de los enumerados (puertos, motores A/B, etc.) y nombres de los grupos de la paleta → inglés.
+   - jsdoc / tooltips visibles en el editor → inglés.
+   - **No se toca:** el `blockId` (el atributo interno que MakeCode persiste, distinto del string visible `block=`). Ya está en inglés por la D4 original y GEN-6 exige que sea permanente — esta tarea no lo modifica bajo ninguna circunstancia.
+   - El nombre visible del paquete/categoría ("KROMA") es nombre propio y no se traduce.
+
+3. **Archivo de traducción (`_locales/es-ES/`).**
+   - Crear `_locales/es-ES/pxt-kroma-strings.json` (cadenas de bloques) y `_locales/es-ES/pxt-kroma-jsdoc-strings.json` (tooltips/jsdoc), siguiendo el mecanismo estándar de localización de PXT/MakeCode para paquetes de terceros.
+   - Antes de generarlos, confirmar contra la documentación oficial de PXT (o un paquete de referencia ya localizado) el nombre exacto de archivo y la forma del JSON para la versión de pxt-core/target que usa este proyecto — no asumir la convención sin verificarla, puede variar entre versiones.
+   - Contenido de la traducción en esta primera pasada: el mismo texto en español que hoy existe en el código fuente (el que ya pasó por `revisor-didactico`), como valor de cada clave en inglés. No es una retraducción desde cero.
+   - Efecto esperado: un docente con el editor de MakeCode/Ceibal configurado en español ve los bloques igual que hoy; con el editor en inglés, ve inglés.
+
+4. **README y documentación para el docente — decisión pendiente, no incluida en el alcance de D4.** D4 revisada habla de "cadenas fuente" (bloques, jsdoc, comentarios), no de prosa como el README. Antes de tocarlo, confirmar con Santi si el README se traduce, se duplica en dos idiomas, o se deja solo en español porque el público de Plan Ceibal es hispanohablante. No traducir el README como efecto colateral de esta tarea sin esa confirmación.
+
+**Criterios de aceptación:**
+- GEN-2 (sin vocabulario técnico en la superficie) se cumple también sobre las cadenas en inglés, no solo sobre el locale en español.
+- `tools/check-tablas.js` sigue funcionando: si se traducen los comentarios-marcador `// @tabla:<nombre>:inicio` / `:fin` de `tablas.ts` (sección 6.5 de `ARQUITECTURA.md`), el script se actualiza en el mismo cambio para buscar el texto nuevo. (Hecho: los marcadores pasaron a `// @table:<nombre>:start` / `:end` en `tables.ts`, y `check-tablas.js` se actualizó para buscarlos junto con los nuevos nombres de campo en inglés.)
+
+Quedan fuera de los criterios de aceptación, por depender de placa/editor y no ser verificables leyendo código: que el locale se vea igual en el editor de MakeCode configurado en español, y que un proyecto de docente guardado antes de esta tarea siga abriendo sin error. Ver hallazgo 3 de `PENDIENTES.md`.
+
+**Cierre adicional:** actualizar `ARQUITECTURA.md` §5 (estructura de archivos) agregando `_locales/` y los nombres de archivo si se renombraron, y §7 (flujos principales) si corresponde.
 
 ---
 

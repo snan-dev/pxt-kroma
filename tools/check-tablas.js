@@ -1,4 +1,4 @@
-// Verificación de invariantes de las tablas de correspondencia en tablas.ts.
+// Verificación de invariantes de las tablas de correspondencia en tables.ts.
 // Sin dependencias externas: solo fs y path de Node.
 // Ver docs/ARQUITECTURA.md §6.5.
 
@@ -7,17 +7,17 @@
 const fs = require("fs");
 const path = require("path");
 
-const RUTA_TABLAS = path.join(__dirname, "..", "tablas.ts");
+const RUTA_TABLAS = path.join(__dirname, "..", "tables.ts");
 
 function leerFuente() {
     return fs.readFileSync(RUTA_TABLAS, "utf8");
 }
 
-// Extrae el texto entre "// @tabla:<nombre>:inicio" y "// @tabla:<nombre>:fin",
+// Extrae el texto entre "// @table:<nombre>:start" y "// @table:<nombre>:end",
 // exigiendo que cada marcador aparezca exactamente una vez.
 function extraerFragmento(fuente, nombreTabla) {
-    const marcadorInicio = `// @tabla:${nombreTabla}:inicio`;
-    const marcadorFin = `// @tabla:${nombreTabla}:fin`;
+    const marcadorInicio = `// @table:${nombreTabla}:start`;
+    const marcadorFin = `// @table:${nombreTabla}:end`;
 
     const vecesInicio = fuente.split(marcadorInicio).length - 1;
     const vecesFin = fuente.split(marcadorFin).length - 1;
@@ -106,27 +106,27 @@ function main() {
 
     let datosPuertos, datosMotores;
     try {
-        datosPuertos = evaluarDeclaraciones(extraerFragmento(fuente, "puertos"));
-        datosMotores = evaluarDeclaraciones(extraerFragmento(fuente, "motores"));
+        datosPuertos = evaluarDeclaraciones(extraerFragmento(fuente, "ports"));
+        datosMotores = evaluarDeclaraciones(extraerFragmento(fuente, "motors"));
     } catch (err) {
         console.error(`Error al extraer las tablas de ${RUTA_TABLAS}: ${err.message}`);
         process.exit(1);
     }
 
-    const TABLA_PUERTOS = datosPuertos.TABLA_PUERTOS;
-    const TABLA_MOTORES = datosMotores.TABLA_MOTORES;
-    const PIN_STANDBY_MOTORES = datosMotores.PIN_STANDBY_MOTORES;
+    const TABLA_PUERTOS = datosPuertos.PORT_TABLE;
+    const TABLA_MOTORES = datosMotores.MOTOR_TABLE;
+    const PIN_STANDBY_MOTORES = datosMotores.MOTOR_STANDBY_PIN;
 
     if (!Array.isArray(TABLA_PUERTOS)) {
-        console.error('La tabla "puertos" no exportó un arreglo TABLA_PUERTOS.');
+        console.error('La tabla "ports" no exportó un arreglo PORT_TABLE.');
         process.exit(1);
     }
     if (!Array.isArray(TABLA_MOTORES)) {
-        console.error('La tabla "motores" no exportó un arreglo TABLA_MOTORES.');
+        console.error('La tabla "motors" no exportó un arreglo MOTOR_TABLE.');
         process.exit(1);
     }
     if (typeof PIN_STANDBY_MOTORES !== "number") {
-        console.error('La tabla "motores" no exportó un número PIN_STANDBY_MOTORES.');
+        console.error('La tabla "motors" no exportó un número MOTOR_STANDBY_PIN.');
         process.exit(1);
     }
 
@@ -135,44 +135,44 @@ function main() {
     // 1. Puerto duplicado.
     resultados.push(verificar(
         "Puerto duplicado",
-        TABLA_PUERTOS.map((fila, i) => ({ valor: fila.puerto, etiqueta: `fila ${i + 1} (puerto ${fila.puerto})` }))
+        TABLA_PUERTOS.map((fila, i) => ({ valor: fila.port, etiqueta: `fila ${i + 1} (puerto ${fila.port})` }))
     ));
 
     // 2. Canal de PWM repetido.
     resultados.push(verificar(
         "Canal de PWM repetido",
-        TABLA_PUERTOS.map(fila => ({ valor: fila.canalPWM, etiqueta: `puerto ${fila.puerto} (canal PWM)` }))
+        TABLA_PUERTOS.map(fila => ({ valor: fila.pwmChannel, etiqueta: `puerto ${fila.port} (canal PWM)` }))
     ));
 
     // 3. Pin del expansor repetido.
     resultados.push(verificar(
         "Pin del expansor repetido",
         TABLA_PUERTOS
-            .filter(fila => fila.digital.tipo === "expansor")
-            .map(fila => ({ valor: fila.digital.pin, etiqueta: `puerto ${fila.puerto} (digital, expansor)` }))
+            .filter(fila => fila.digital.type === "expander")
+            .map(fila => ({ valor: fila.digital.pin, etiqueta: `puerto ${fila.port} (digital, expansor)` }))
     ));
 
     // 4. Canal del conversor repetido.
     resultados.push(verificar(
         "Canal del conversor repetido",
         TABLA_PUERTOS
-            .filter(fila => fila.analogico.tipo === "ads1015")
-            .map(fila => ({ valor: fila.analogico.canal, etiqueta: `puerto ${fila.puerto} (analógico, ADS1015)` }))
+            .filter(fila => fila.analog.type === "ads1015")
+            .map(fila => ({ valor: fila.analog.channel, etiqueta: `puerto ${fila.port} (analógico, ADS1015)` }))
     ));
 
     // 5. Pin del micro:bit asignado a dos funciones.
     const pinesMicrobit = [];
     TABLA_PUERTOS.forEach(fila => {
-        if (fila.analogico.tipo === "nativo") {
-            pinesMicrobit.push({ valor: fila.analogico.pin, etiqueta: `puerto ${fila.puerto} (analógico)` });
+        if (fila.analog.type === "native") {
+            pinesMicrobit.push({ valor: fila.analog.pin, etiqueta: `puerto ${fila.port} (analógico)` });
         }
-        if (fila.digital.tipo === "nativo") {
-            pinesMicrobit.push({ valor: fila.digital.pin, etiqueta: `puerto ${fila.puerto} (digital)` });
+        if (fila.digital.type === "native") {
+            pinesMicrobit.push({ valor: fila.digital.pin, etiqueta: `puerto ${fila.port} (digital)` });
         }
     });
     TABLA_MOTORES.forEach(motor => {
-        pinesMicrobit.push({ valor: motor.pinVelocidad, etiqueta: `motor ${motor.rotulo} (velocidad)` });
-        pinesMicrobit.push({ valor: motor.pinDireccion, etiqueta: `motor ${motor.rotulo} (dirección)` });
+        pinesMicrobit.push({ valor: motor.speedPin, etiqueta: `motor ${motor.label} (velocidad)` });
+        pinesMicrobit.push({ valor: motor.directionPin, etiqueta: `motor ${motor.label} (dirección)` });
     });
     pinesMicrobit.push({ valor: PIN_STANDBY_MOTORES, etiqueta: "standby de motores" });
 

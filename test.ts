@@ -1,2 +1,2 @@
-// Programa de prueba. No se compila en el paquete (ver testFiles en pxt.json).
-// Se completa a partir de la Tarea 2, cuando existan bloques.
+// Test program. Not compiled into the package (see testFiles in pxt.json).
+// Completed starting with Task 2, once blocks exist.

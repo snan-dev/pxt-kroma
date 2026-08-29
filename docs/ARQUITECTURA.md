@@ -12,7 +12,7 @@ Una discrepancia entre este documento y el código se reporta al desarrollador. 
 
 La distinción del punto 2 es deliberada: los identificadores de bloque son permanentes y las tablas propagan cualquier error a toda la extensión, así que ahí conviene la rigidez. Cómo un driver organiza su estado interno es reversible y contenido en un archivo, así que ahí alcanza con las convenciones de `SKILL.md`.
 
-> **Estado: en implementación.** Tarea 0 y Tarea 1 cerradas con código; el resto de las tareas del plan sigue pendiente. Cada tarea que se cierre debe actualizar la parte descriptiva de este documento.
+> **Estado: en implementación.** Tarea 0, Tarea 1 y Tarea 8 cerradas con código; el resto de las tareas del plan sigue pendiente. Tarea 8 se ejecutó como pasada temprana sobre el poco código existente (tablas y esqueleto): pasa el código fuente a inglés y agrega la capa de locale en español; las tareas 2 a 7 nacen directamente en inglés. Cada tarea que se cierre debe actualizar la parte descriptiva de este documento.
 
 ---
 
@@ -142,14 +142,17 @@ Standby compartido: P13.
 ```
 pxt.json                    # Manifiesto del paquete
 README.md                   # Documentación para el docente
-tablas.ts                   # Enumerados públicos y tablas de correspondencia (datos puros)
-placa.ts                    # Namespace público: todos los bloques visibles
-motores.ts                  # Driver TB6612, pines directos
+tables.ts                   # Enumerados públicos y tablas de correspondencia (datos puros)
+board.ts                    # Namespace público: todos los bloques visibles
+motors.ts                   # Driver TB6612, pines directos
 servos.ts                   # Driver PCA9685, I2C
-analogico.ts                # ADS1015 + pines nativos, I2C y directo
+analog.ts                   # ADS1015 + pines nativos, I2C y directo
 digital.ts                  # PCA9536 + pines nativos
-ultrasonido.ts              # Sensor de distancia (puertos 4 y 6)
+ultrasonic.ts               # Sensor de distancia (puertos 4 y 6)
 test.ts                     # Programa de prueba (no se compila en el paquete)
+_locales/es-ES/
+  pxt-kroma-strings.json        # Traducción al español de las cadenas de bloques
+  pxt-kroma-jsdoc-strings.json  # Traducción al español de jsdoc/tooltips
 tools/
   check-tablas.js           # Verificación de invariantes de las tablas (Node, cero dependencias)
 docs/
@@ -159,8 +162,8 @@ docs/
   VERIFICACION.md           # Protocolo de verificación con la placa física
   PENDIENTES.md             # Backlog
 .claude/agents/
-  revisor-kroma.md
-  revisor-didactico-kroma.md
+  revisor-placa.md
+  revisor-didactico.md
 CLAUDE.md
 ```
 
@@ -170,7 +173,7 @@ CLAUDE.md
 
 ### 6.1 Separación entre bloques y drivers
 
-`placa.ts` contiene **únicamente** los bloques públicos: anotaciones, validación de argumentos y delegación. La lógica de hardware vive en los módulos de driver. Un bloque no habla I2C directamente.
+`board.ts` contiene **únicamente** los bloques públicos: anotaciones, validación de argumentos y delegación. La lógica de hardware vive en los módulos de driver. Un bloque no habla I2C directamente.
 
 Razón: permite revisar la superficie pública —que es lo que ve el docente— sin leer el código de hardware.
 
@@ -179,38 +182,38 @@ Razón: permite revisar la superficie pública —que es lo que ve el docente—
 En MakeCode no se puede exigir que el usuario arrastre un bloque de inicialización: se va a olvidar. Cada driver mantiene una bandera interna y se inicializa solo en su primer uso.
 
 ```
-let inicializado = false
-function asegurarInicializado(): void {
-    if (inicializado) return
+let initialized = false
+function ensureInitialized(): void {
+    if (initialized) return
     // configuración del chip
-    inicializado = true
+    initialized = true
 }
 ```
 
-Toda función pública de un driver empieza llamando a `asegurarInicializado()`.
+Toda función pública de un driver empieza llamando a `ensureInitialized()`.
 
 ### 6.3 Espejo en memoria del registro de salida
 
 El expansor PCA9536 guarda los cuatro pines en un solo byte, de modo que cambiar uno exige leer-modificar-escribir. En vez de leer el chip en cada operación, el driver mantiene una copia en memoria del último valor escrito.
 
-Ahorra una transacción I2C por operación y elimina una dependencia de lectura. La copia se inicializa a cero durante `asegurarInicializado()`, que es el estado real tras configurar el chip.
+Ahorra una transacción I2C por operación y elimina una dependencia de lectura. La copia se inicializa a cero durante `ensureInitialized()`, que es el estado real tras configurar el chip.
 
-### 6.4 Nada de literales de mapeo fuera de `tablas.ts`
+### 6.4 Nada de literales de mapeo fuera de `tables.ts`
 
-Ningún módulo escribe un número de canal, un número de pin del expansor ni una dirección I2C. Todo se obtiene de `tablas.ts`. Los cruces documentados en la sección 4 son demasiado fáciles de equivocar como para repetirlos.
+Ningún módulo escribe un número de canal, un número de pin del expansor ni una dirección I2C. Todo se obtiene de `tables.ts`. Los cruces documentados en la sección 4 son demasiado fáciles de equivocar como para repetirlos.
 
 ### 6.5 Formato de las tablas para que `tools/check-tablas.js` las pueda leer
 
-`tools/check-tablas.js` verifica las tablas de correspondencia sin depender de compilar TypeScript ni de mantener una segunda copia de los datos (lo que prohibiría la sección 6.4). Lo logra leyendo `tablas.ts` como texto plano, así que cada tabla verificada por ese script debe respetar esta forma:
+`tools/check-tablas.js` verifica las tablas de correspondencia sin depender de compilar TypeScript ni de mantener una segunda copia de los datos (lo que prohibiría la sección 6.4). Lo logra leyendo `tables.ts` como texto plano, así que cada tabla verificada por ese script debe respetar esta forma:
 
-- El literal de la tabla va delimitado por comentarios marcadores: `// @tabla:<nombre>:inicio` y `// @tabla:<nombre>:fin`, cada uno apareciendo exactamente una vez.
-- Entre esos marcadores el literal debe ser JavaScript puro además de TypeScript válido: sin `as const`, sin anotaciones de tipo dentro del literal, sin referencias simbólicas a un enum (siempre el valor numérico crudo, nunca `Puerto.Puerto1`).
+- El literal de la tabla va delimitado por comentarios marcadores: `// @table:<nombre>:start` y `// @table:<nombre>:end`, cada uno apareciendo exactamente una vez.
+- Entre esos marcadores el literal debe ser JavaScript puro además de TypeScript válido: sin `as const`, sin anotaciones de tipo dentro del literal, sin referencias simbólicas a un enum (siempre el valor numérico crudo, nunca `Port.Port1`).
 
-El script extrae el fragmento entre marcadores y lo evalúa con `new Function`. Cualquier tabla nueva que agregue una tarea futura y que `check-tablas.js` deba verificar tiene que seguir esta misma convención; los datos que no participan de ningún invariante (como `DIRECCIONES_I2C`) pueden ir fuera de los marcadores, con tipado normal de TypeScript.
+El script extrae el fragmento entre marcadores y lo evalúa con `new Function`. Cualquier tabla nueva que agregue una tarea futura y que `check-tablas.js` deba verificar tiene que seguir esta misma convención; los datos que no participan de ningún invariante (como `I2C_ADDRESSES`) pueden ir fuera de los marcadores, con tipado normal de TypeScript.
 
 ### 6.6 Todo el contenido de cada archivo vive dentro de `namespace kroma`
 
-Un archivo del paquete que declare `export` a nivel de archivo, sin envolverlo en un `namespace`, pasa a tratarse como módulo de TypeScript: sus símbolos no exportados quedan privados de ese archivo, invisibles para el resto del paquete. `tablas.ts` necesita `export` en sus tablas y enumerados para que `placa.ts` y los drivers los usen sin calificar, así que todo su contenido —enumerados incluidos— va dentro de `namespace kroma { ... }`, igual que `placa.ts`. Un archivo nuevo que agregue tablas o enumerados públicos debe seguir el mismo patrón.
+Un archivo del paquete que declare `export` a nivel de archivo, sin envolverlo en un `namespace`, pasa a tratarse como módulo de TypeScript: sus símbolos no exportados quedan privados de ese archivo, invisibles para el resto del paquete. `tables.ts` necesita `export` en sus tablas y enumerados para que `board.ts` y los drivers los usen sin calificar, así que todo su contenido —enumerados incluidos— va dentro de `namespace kroma { ... }`, igual que `board.ts`. Un archivo nuevo que agregue tablas o enumerados públicos debe seguir el mismo patrón.
 
 ---
 
@@ -234,9 +237,9 @@ Cada tarea que resuelve una ambigüedad deja acá el fundamento y cambia su esta
 
 ### Decisiones tomadas
 
-**D4 — Idioma de las cadenas fuente: español directo.** Todo texto visible al docente se escribe en español en el código fuente, sin `_locales/`. El público es exclusivamente hispanohablante y una capa de traducción agregaría un archivo que mantener sin beneficio real. Si en el futuro hiciera falta otro idioma, se agrega un locale sobre las cadenas existentes sin tocar el código.
+**D4 — Idioma de las cadenas fuente: inglés directo, con locale en español (revisada 2026-08-29).** Decisión original: español directo en el código fuente, sin `_locales/`. Se revierte por decisión consciente de Santi. El inglés pasa a ser el idioma base del código fuente — incluido lo que ve el docente (el atributo `block`, nombres de parámetro visibles, rótulos de enumerados, grupos de paleta, jsdoc) — y se agrega `_locales/es-ES/` con la traducción al español, siguiendo el mecanismo estándar de localización de PXT/MakeCode (`es-ES` es el código exacto que usa el target `microbit` para español, verificado contra `pxtarget.json` y contra la extensión de referencia `pxt-neopixel` al implementar la Tarea 8; no `es`). El contenido de esa traducción es, en esta primera pasada, el mismo texto en español que hoy existe en el código, para no perder lo que ya pasó por `revisor-didactico-kroma`.
 
-Consecuencia práctica: los `blockId` siguen siendo identificadores en inglés y sin acentos, porque no son visibles y deben ser estables. Lo que va en español es el atributo `block`, los nombres de parámetro visibles, los rótulos de los enumerados y los grupos de la paleta.
+Consecuencia práctica: los `blockId` no cambian — ya estaban en inglés y sin acentos por ser identificadores no visibles y estables (GEN-6); esta revisión no los toca. Lo que antes era español directo en el atributo `block` y afines pasa a inglés, y el español que el docente sigue viendo en el editor (cuando este está configurado en español) sale ahora del archivo de locale, no del código fuente. El detalle de alcance, generación del archivo de traducción y verificación queda en la Tarea 8 de `PLAN-DE-TAREAS.md`.
 
 **D5 — Nombre.** Paquete y repositorio `pxt-kroma`. Nombre visible en el editor: KROMA.
 

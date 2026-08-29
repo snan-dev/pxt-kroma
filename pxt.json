@@ -3,14 +3,16 @@
     "version": "0.0.0",
     "description": "KROMA — bloques para la placa controladora y expansora de Plan Ceibal: motores, servos, entradas analógicas, salidas digitales y sensor de distancia.",
     "files": [
-        "tablas.ts",
+        "tables.ts",
         "digital.ts",
-        "analogico.ts",
+        "analog.ts",
         "servos.ts",
-        "motores.ts",
-        "ultrasonido.ts",
-        "placa.ts",
-        "test.ts"
+        "motors.ts",
+        "ultrasonic.ts",
+        "board.ts",
+        "test.ts",
+        "_locales/es-ES/pxt-kroma-strings.json",
+        "_locales/es-ES/pxt-kroma-jsdoc-strings.json"
     ],
     "testFiles": [
         "test.ts"

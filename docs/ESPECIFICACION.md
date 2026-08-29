@@ -188,7 +188,7 @@ Una tarea **no arranca** si toca un requisito con una ambigüedad sin resolver. 
 | D1 | Escala de la lectura analógica: ¿se normalizan los 10 y los 12 bits a una escala única, o se expone la diferencia? | ANA-2 | Abierta |
 | D2 | ¿Existe lectura digital además de escritura? | — | **Resuelta:** fuera del alcance de la primera versión |
 | D3 | Ganancia por defecto del conversor analógico | ANA-3, ANA-4 | Abierta |
-| D4 | Idioma de las cadenas fuente | GEN-2, GEN-3 | **Resuelta:** español directo en el código fuente, sin capa de localización |
+| D4 | Idioma de las cadenas fuente | GEN-2, GEN-3 | **Resuelta (revisada 2026-08-29):** código fuente en inglés, con capa de localización en `_locales/es-ES/` para el docente. Ver `ARQUITECTURA.md` §8 y la Tarea 8 de `PLAN-DE-TAREAS.md`. |
 | D5 | Nombre definitivo del paquete y del repositorio | GEN-6 | **Resuelta:** paquete y repositorio `pxt-kroma`, nombre visible KROMA |
 | D6 | Margen de tolerancia declarado para ANA-2, ANA-3, ANA-4, ULT-1 y ULT-3 | ANA-2, ANA-3, ANA-4, ULT-1, ULT-3 | Abierta |
 

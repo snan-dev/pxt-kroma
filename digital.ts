@@ -1,2 +1,2 @@
-// Driver del PCA9536 (expansor de salidas digitales). Se completa en la Tarea 2.
-// Ver docs/ARQUITECTURA.md §5 y §6.3.
+// PCA9536 driver (digital output expander). Completed in Task 2.
+// See docs/ARQUITECTURA.md §5 and §6.3.

@@ -63,15 +63,15 @@ Estas son físicas, no negociables. Ver el detalle en `docs/ARQUITECTURA.md` sec
 ### Generales
 
 - **TypeScript estático de pxt.** No es TypeScript completo: sin `any` dinámico, sin closures que capturen y muten libremente, sin genéricos complejos, sin `async`/`await`. Ante la duda, escribir código simple y verificar que compila en MakeCode.
-- **Español directo para todo lo visible**, escrito así en el código fuente: el atributo `block`, los nombres de parámetro visibles, los rótulos de enumerados y los grupos de la paleta. Sin capa de localización. Inglés y sin acentos para lo no visible: `blockId`, nombres de variables y de funciones internas.
+- **Inglés para todo el código fuente**, incluida la superficie visible al docente: el atributo `block`, los nombres de parámetro visibles, los rótulos de enumerados, los grupos de la paleta y el jsdoc. El español que ve el docente sale de `_locales/es-ES/pxt-kroma-strings.json` y `_locales/es-ES/pxt-kroma-jsdoc-strings.json`, no del código fuente (D4 revisada 2026-08-29). Sin acentos para lo no visible: `blockId`, nombres de variables y de funciones internas. El nombre propio "KROMA" nunca se traduce.
 - **Referencias por nombre de función, nunca por número de línea.** Los números de línea se desactualizan.
-- **Separación estricta entre bloques y drivers.** `placa.ts` solo tiene anotaciones, validación y delegación. La lógica de hardware vive en los módulos de driver. Un bloque no habla I2C.
-- **Ningún literal de mapeo fuera de `tablas.ts`.** Ni un canal, ni un pin del expansor, ni una dirección I2C.
+- **Separación estricta entre bloques y drivers.** `board.ts` solo tiene anotaciones, validación y delegación. La lógica de hardware vive en los módulos de driver. Un bloque no habla I2C.
+- **Ningún literal de mapeo fuera de `tables.ts`.** Ni un canal, ni un pin del expansor, ni una dirección I2C.
 - **Sin cambios especulativos.** Si al revisar un documento aparece una discrepancia con el código, se reporta y se confirma con el desarrollador. Nunca se "arregla" el código para que coincida con el documento.
 
 ### Inicialización
 
-MakeCode no permite exigir que el usuario arrastre un bloque de inicialización: se lo va a olvidar. Cada driver mantiene una bandera interna y se inicializa solo en su primer uso, de forma idempotente. Toda función pública empieza llamando a `asegurarInicializado()`.
+MakeCode no permite exigir que el usuario arrastre un bloque de inicialización: se lo va a olvidar. Cada driver mantiene una bandera interna y se inicializa solo en su primer uso, de forma idempotente. Toda función pública empieza llamando a `ensureInitialized()`.
 
 ### Anotaciones de bloque
 

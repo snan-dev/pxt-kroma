@@ -20,8 +20,8 @@ El docente nombra el periférico y el puerto donde lo conectó. Ningún bloque e
 
 ## Reglas que no se rompen
 
-1. **Ningún literal de mapeo fuera de `tablas.ts`.** Ni canales, ni pines del expansor, ni direcciones I2C. Los cruces son demasiado fáciles de equivocar.
-2. **`placa.ts` solo tiene bloques.** Anotaciones, validación de argumentos y delegación. La lógica de hardware vive en los drivers.
+1. **Ningún literal de mapeo fuera de `tables.ts`.** Ni canales, ni pines del expansor, ni direcciones I2C. Los cruces son demasiado fáciles de equivocar.
+2. **`board.ts` solo tiene bloques.** Anotaciones, validación de argumentos y delegación. La lógica de hardware vive en los drivers.
 3. **Los `blockId` son permanentes.** Cambiar uno rompe los proyectos guardados de los docentes.
 4. **Inicialización perezosa e idempotente** en cada driver. No se le puede pedir al docente que arrastre un bloque de inicialización.
 5. **No existe bloque "frenar motor".** El hardware no puede hacerlo.
@@ -42,9 +42,11 @@ El docente nombra el periférico y el puerto donde lo conectó. Ningún bloque e
 
 ## Idioma
 
-Todo lo visible al docente va en español, escrito así en el código fuente. Sin `_locales/`, sin capa de traducción.
+Inglés para todo el código fuente, incluida la superficie visible al docente: el atributo `block`, los nombres de parámetro visibles, los rótulos de enumerados, los grupos de la paleta y el jsdoc. El español que el docente ve en el editor sale de `_locales/es-ES/pxt-kroma-strings.json` y `_locales/es-ES/pxt-kroma-jsdoc-strings.json`, no del código fuente (D4 revisada 2026-08-29, ver `docs/ARQUITECTURA.md` §8 y Tarea 8 de `docs/PLAN-DE-TAREAS.md`).
 
-Inglés y sin acentos para lo que no se ve: `blockId`, nombres de variables y de funciones internas. Los `blockId` son identificadores permanentes, no texto.
+Sin acentos para lo que no se ve: `blockId`, nombres de variables y de funciones internas. Los `blockId` son identificadores permanentes, no texto, y ya estaban en inglés desde antes de esta revisión.
+
+El nombre propio "KROMA" nunca se traduce.
 
 ## TypeScript de pxt
 
