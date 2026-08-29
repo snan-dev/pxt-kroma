@@ -34,7 +34,9 @@ Toda la especificación está cubierta y ninguna tarea es huérfana.
 
 Repositorio `pxt-kroma` ya creado localmente. Resta: completar el manifiesto, crear los archivos vacíos con su namespace, el README inicial y el programa de prueba mínimo. No produce bloques.
 
-**Criterio de aceptación:** la extensión se importa en MakeCode desde su repositorio sin errores, y aparece en la paleta con su nombre e ícono, aunque no contenga bloques todavía.
+**Criterio de aceptación:** la extensión se importa en MakeCode desde su repositorio sin errores, y el paquete se resuelve correctamente como dependencia (sus archivos aparecen listados en el editor, sin errores de compilación).
+
+La aparición de la categoría KROMA en la paleta, con su nombre e ícono, **no es parte de este criterio**: se verificó empíricamente que MakeCode no renderiza ninguna categoría —ni siquiera con las anotaciones de color e ícono puestas— para un namespace que no exporta ningún bloque; el paquete completo se mostró como "undefined" en el explorador de archivos. Es una restricción de la plataforma, no un defecto del código de la Tarea 0. Esa verificación queda diferida a la Tarea 2, que es la que agrega el primer bloque real.
 
 **Cierre adicional:** el criterio de permanencia de identificadores (GEN-6) queda registrado como convención en `CLAUDE.md` antes de que exista el primer bloque.
 
@@ -66,6 +68,7 @@ La más simple de las que tocan hardware. Valida todo el andamiaje: tablas, inic
 **Criterios de aceptación:** los de DIG-1, DIG-2 y DIG-3 tal como están redactados en la especificación, más:
 - Un programa cuya única instrucción sea el bloque de escritura produce el efecto en la primera ejecución, sin ningún bloque previo (GEN-4).
 - El bloque no expone ningún nombre de chip, pin ni canal (GEN-2 en su porción).
+- La categoría KROMA aparece en la paleta con su nombre e ícono, ahora que existe al menos un bloque exportado — verificación diferida desde la Tarea 0.
 
 **Es la tarea de referencia.** Los patrones que se fijen acá se repiten en las siguientes, y el revisor los va a usar como base de comparación.
 
