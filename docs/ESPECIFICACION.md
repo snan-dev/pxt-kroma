@@ -98,6 +98,25 @@ En los extremos del recorrido el valor es estable y corresponde al mínimo y al 
 
 ---
 
+## SAL — Salida analógica *(agregado 2026-08-29)*
+
+### SAL-1 — Escritura en los puertos 4 y 6
+El docente puede fijar el nivel de salida analógica en el puerto 4 o el puerto 6, en una escala de 0 a 100. No está disponible en los demás puertos: la señal solo existe como pin nativo del micro:bit ahí — ver `ARQUITECTURA.md` §3.8.
+
+**Aceptación:** con un LED conectado, valores intermedios producen niveles de brillo perceptiblemente distintos entre sí, 0 corresponde a apagado y 100 a intensidad máxima, en los puertos 4 y 6.
+
+### SAL-2 — Puertos imposibles de equivocar
+El bloque de salida analógica solo ofrece los puertos donde la señal puede generarse. Elegir otro debe ser imposible, no fallar en silencio.
+
+**Aceptación:** el selector del bloque no contiene ninguna opción distinta de los puertos 4 y 6.
+
+### SAL-3 — Sin interacción con servos
+Usar la salida analógica no afecta el movimiento de los servos en otros puertos, ni viceversa.
+
+**Aceptación:** con un servo en movimiento en otro puerto y la salida analógica activa en el puerto 4 o 6, ninguno de los dos altera el comportamiento del otro.
+
+---
+
 ## SRV — Servos
 
 ### SRV-1 — Movimiento en cualquier puerto

@@ -92,12 +92,26 @@ El PCA9685 tiene un solo divisor interno: los seis canales comparten frecuencia.
 
 La velocidad de los motores no pasa por el PCA9685: sale de P8 y P15. El período por defecto del micro:bit es de 20 ms (50 Hz), demasiado lento para un motor: produce chillido audible y giro a tirones a baja velocidad. **Hay que bajarlo al inicializar.**
 
+### 3.8 La salida analógica solo es posible en los puertos 4 y 6 *(agregado 2026-08-29)*
+
+La única línea PWM que llega a los seis puertos es el canal del PCA9685 (tabla 4.1), y ese chip tiene una sola frecuencia para los seis canales (§3.5), fijada para servos y no expuesta al usuario. Usarla para una salida analógica de propósito general —atenuar un LED, por ejemplo— produciría el parpadeo visible de 50 Hz, y cambiar esa frecuencia afectaría a los servos conectados en cualquier otro puerto.
+
+La alternativa es generar el PWM sobre el pin nativo del micro:bit, con `pins.analogWritePin`, sin pasar por el PCA9685. Eso solo es posible en los puertos con pin directo: **4 y 6**, la misma restricción de §3.1 y por el mismo motivo de fondo (son los únicos puertos con una línea que no pasa por un chip compartido).
+
+**Consecuencia para los bloques:** igual que el sensor de distancia, el bloque de salida analógica usa un enumerado restringido a los puertos 4 y 6.
+
 ### 3.7 Límites de corriente
 
 - Riel de 5 V: corta a 3 A. Un servo pequeño forzado demanda ~0,7 A. Cuatro servos bajo carga simultánea ya rozan el corte.
 - Motores: ~1,2 A continuos por canal.
 
 No son controlables por software, pero deben estar documentados en el README para el docente.
+
+### 3.9 El período de PWM nativo del micro:bit no es independiente por pin *(agregado 2026-08-29)*
+
+El manejador de PWM analógico del runtime que usa MakeCode no trata cada pin como un recurso aislado: cambiar el período en un pin puede cambiar la frecuencia efectiva de otros pines que también estén generando PWM nativo, y usar una función de servo en un pin distinto puede hacer que las frecuencias activas vuelvan a 50 Hz. Reportado en `microsoft/pxt-microbit#4950`; no hay confirmación de si difiere entre micro:bit V1 y V2.
+
+**Consecuencia para KROMA:** los servos (PCA9685, vía I2C) no se ven afectados — nunca tocan el PWM nativo del micro:bit. Pero motores (§3.6, P8/P15) y salida analógica (§3.8, P9/P12) sí comparten este recurso: los dos ajustan el período de un pin nativo, y uno podría pisarle la configuración al otro. Verificar empíricamente al cerrar cada una — ver `PLAN-DE-TAREAS.md`.
 
 ---
 
@@ -146,9 +160,10 @@ tables.ts                   # Enumerados públicos y tablas de correspondencia (
 board.ts                    # Namespace público: todos los bloques visibles
 motors.ts                   # Driver TB6612, pines directos
 servos.ts                   # Driver PCA9685, I2C
-analog.ts                   # ADS1015 + pines nativos, I2C y directo
+analog.ts                   # ADS1015 + pines nativos, I2C y directo (entradas)
 digital.ts                  # PCA9536 + pines nativos
 ultrasonic.ts               # Sensor de distancia (puertos 4 y 6)
+analogOutput.ts             # Salida analógica sobre pin nativo (puertos 4 y 6), Tarea 9
 test.ts                     # Programa de prueba (no se compila en el paquete)
 _locales/es-ES/
   pxt-kroma-strings.json        # Traducción al español de las cadenas de bloques
@@ -249,6 +264,8 @@ Consecuencia práctica: los `blockId` no cambian — ya estaban en inglés y sin
 **Dirección de pines del PCA9536 en `digital.ts` (Tarea 2).** El documento de implementación de la Tarea 2 asumía, siguiendo el código de prueba del proveedor, que el registro de configuración del PCA9536 se fija una sola vez en el arranque con los 4 pines como salida y no se vuelve a tocar. Al implementar se encontró una discrepancia: el datasheet de NXP confirma que las salidas del PCA9536 son push-pull (no quasi-bidireccionales), así que un pin dejado permanentemente como salida competiría eléctricamente con un dispositivo externo (por ejemplo, un pulsador) en vez de sensarlo — esto rompería el criterio de aceptación de DIG-4 en los puertos 1, 2, 3 y 5 (los que pasan por el expansor). Se reportó a Santi con dos alternativas y se confirmó la opción de agregar un segundo espejo en memoria, `configMirror`, que cambia el bit de dirección de un pin puntual a entrada antes de leerlo (`readDigital`) y a salida antes de escribirlo (`setDigital`), dejando los otros tres pines intactos — el patrón estándar para expansores I2C bidireccionales. El valor inicial de `configMirror` (0x0F, los 4 pines como entrada) coincide con el estado real de encendido del chip.
 
 **D2 — Lectura digital: sí entra en el alcance de la v1 (revisada 2026-08-29).** Decisión original: fuera de alcance. Se revierte por decisión de Santi al planificar la Tarea 2. Fundamento: el origen por puerto ya está resuelto para la escritura desde la Tarea 1 (columna "Digital: origen" de la tabla 4.1) y es exactamente el mismo para la lectura — no hay tabla nueva que agregar ni cruce nuevo que investigar, así que el costo de sumarla es bajo y evita que un docente se encuentre con un hueco donde esperaría simetría (puede escribir un LED pero no leer un pulsador). El bloque de lectura usa el mismo driver de `digital.ts`: rama de pin nativo para los puertos 4 y 6, y lectura del registro de entrada del PCA9536 (registro 0x00, a diferencia del de salida que usa el espejo en memoria de §6.3) para 1, 2, 3 y 5.
+
+**Escala de la salida analógica (SAL-1).** 0 a 100, no 0 a 1023 como en los bloques nativos de Pines de MakeCode. Se prioriza que sea legible como "porcentaje de intensidad" para un docente sin formación técnica, por sobre la coherencia con el rango que usa `pins.analogWritePin` puertas adentro — GEN-2/principio de diseño del §2 pesan más acá que la familiaridad con otras extensiones de MakeCode. La conversión de 0–100 al rango nativo del micro:bit es responsabilidad del driver, no se expone.
 
 ### Márgenes de tolerancia declarados
 

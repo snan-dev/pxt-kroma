@@ -24,6 +24,7 @@ Toda la especificación está cubierta y ninguna tarea es huérfana.
 | MOT-1, MOT-2, MOT-3, MOT-4, MOT-5, MOT-6 | 5 |
 | ULT-1, ULT-2, ULT-3 | 6 |
 | DOC-1, DOC-2 | 7 |
+| SAL-1, SAL-2, SAL-3 | 9 |
 
 ---
 
@@ -108,6 +109,8 @@ Driver del TB6612 por pines directos, con bajada del período de PWM al iniciali
 
 MOT-6 es el criterio que más fácil se pasa por alto y el que primero va a notar un docente.
 
+**Verificación de interacción con la Tarea 9 (agregada 2026-08-29):** con la salida analógica activa en el puerto 4 o 6 (si la Tarea 9 ya está cerrada) y un motor girando a baja velocidad, ninguno de los dos pierde el período que configuró — ver `ARQUITECTURA.md` §3.9. Si Tarea 9 se cierra después, la verificación corre al cerrar esa.
+
 ---
 
 ## Tarea 6 — Sensor ultrasónico
@@ -168,6 +171,24 @@ Contexto: D4 se revierte por decisión consciente de Santi, tomada el 2026-08-29
 Quedan fuera de los criterios de aceptación, por depender de placa/editor y no ser verificables leyendo código: que el locale se vea igual en el editor de MakeCode configurado en español, y que un proyecto de docente guardado antes de esta tarea siga abriendo sin error. Ver hallazgo 3 de `PENDIENTES.md`.
 
 **Cierre adicional:** actualizar `ARQUITECTURA.md` §5 (estructura de archivos) agregando `_locales/` y los nombres de archivo si se renombraron, y §7 (flujos principales) si corresponde.
+
+---
+
+## Tarea 9 — Salida analógica
+
+**Satisface:** SAL-1, SAL-2, SAL-3
+**Agregada:** 2026-08-29, a partir de una pregunta de Santi durante la planificación de Tarea 2, sobre si la salida analógica podía apoyarse en el chip de los servos (PCA9685).
+
+No se apoya en el PCA9685: ese chip tiene una sola frecuencia compartida por los seis canales (§3.5), fijada para servos, así que cualquier puerto que dependiera de él tendría el parpadeo de 50 Hz en vez de una atenuación prolija — y no se puede variar por puerto sin afectar a los servos de los demás. La única línea capaz de dar una frecuencia propia, independiente de los servos, es el pin nativo del micro:bit — y eso solo existe en los puertos 4 y 6 (los mismos que el sensor ultrasónico, por el mismo motivo: son los únicos con pin directo). Ver `ARQUITECTURA.md` §3.8.
+
+Driver nuevo (`analogOutput.ts`) usando `pins.analogWritePin` sobre P9/P12, sin tocar el PCA9685 en absoluto.
+
+**Confirmado (2026-08-29), ya no es solo un punto a verificar:** el período de PWM nativo del micro:bit no es independiente por pin — ver `ARQUITECTURA.md` §3.9 y `microsoft/pxt-microbit#4950`. No afecta a los servos (van por PCA9685/I2C), pero sí puede interactuar con los motores de la Tarea 5, que también ajustan el período de un pin nativo.
+
+**Criterios de aceptación:** los de SAL-1, SAL-2 y SAL-3 tal como están redactados, más:
+- El bloque no expone la palabra "PWM" ni ninguna otra del vocabulario prohibido por GEN-2.
+- Valores fuera de 0–100 se acotan al extremo correspondiente (GEN-5).
+- Con un motor girando a baja velocidad (Tarea 5, si ya está cerrada) y la salida analógica activa, ninguno de los dos pierde el período que configuró. Si Tarea 5 se cierra después, la verificación corre al cerrar esa.
 
 ---
 
