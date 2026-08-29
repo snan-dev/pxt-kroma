@@ -34,8 +34,30 @@ namespace kroma {
         B = 2,
     }
 
+    // Shape of a PORT_TABLE row. Declared outside the @table markers so the
+    // literal below stays plain JS for tools/check-tablas.js (§6.5) — the
+    // annotation lives on the PORT_TABLE declaration, not inside the array.
+    // Literal "type" tags let TypeScript discriminate the union: without
+    // them every row would widen to `type: string` and narrowing on
+    // `entry.analog.type === "native"` (analog.ts, digital.ts) wouldn't
+    // narrow away the sibling variant's fields.
+    export type PortAnalog =
+        | { type: "native"; pin: number; bits: number }
+        | { type: "ads1015"; channel: number; bits: number }
+
+    export type PortDigital =
+        | { type: "native"; pin: number }
+        | { type: "expander"; pin: number }
+
+    export type PortEntry = {
+        port: number
+        analog: PortAnalog
+        digital: PortDigital
+        pwmChannel: number
+    }
+
     // @table:ports:start
-    export const PORT_TABLE = [
+    export const PORT_TABLE: PortEntry[] = [
         { port: 1, analog: { type: "native", pin: 0, bits: 10 }, digital: { type: "expander", pin: 2 }, pwmChannel: 2 },
         { port: 2, analog: { type: "native", pin: 1, bits: 10 }, digital: { type: "expander", pin: 1 }, pwmChannel: 1 },
         { port: 3, analog: { type: "native", pin: 2, bits: 10 }, digital: { type: "expander", pin: 0 }, pwmChannel: 0 },
