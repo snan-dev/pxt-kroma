@@ -83,7 +83,23 @@ Las tablas de `ARQUITECTURA.md` sección 4 se apoyan en esta correspondencia. Si
 
 ## V2 — Entradas analógicas
 
-*(Se completa al cerrar la tarea 3. Verifica ANA-1 a ANA-4.)*
+**Verifica:** ANA-1 a ANA-4.
+
+**Qué conectar:** un potenciómetro alimentado desde 3,3 V/GND de la propia placa (contactos 8 y 5 del RJ45) con el cursor a la línea analógica (contacto 6), en cada uno de los seis puertos.
+
+**Qué ejecutar:** lectura continua de `analogInput` por el puerto serie mientras se gira el potenciómetro de extremo a extremo.
+
+**Qué observar:** el valor recorre 0 a 100 en los seis puertos, sin diferir más de 3 puntos entre puertos de distinta torre con el potenciómetro en la misma posición (ANA-2).
+
+**Resultado (2026-08-29, Santi): NO cumplía ANA-2 antes de la recalibración.** Puertos 1, 2 y 3 (ADC nativo) recorrían 0 a 100 correctamente. Puertos 4, 5 y 6 (ADS1015) topeaban en **81**, no en 100, con el mismo potenciómetro a fondo — diferencia de ~19 puntos entre torres, muy por encima del margen de ANA-2.
+
+**Causa (no era hardware ni bug de lógica):** consecuencia matemática directa de D3 (GAIN_ONE, ±4,096 V) combinada con la fórmula original de D1, que dividía por el fondo de escala *configurado* del ADS1015 (2047 cuentas = 4,096 V) en vez del techo eléctrico *real* de la señal (3,3 V, ya fijado en D3). Con 2 mV/cuenta, 3,3 V son 1650 cuentas, no 2047 — `round(1650*100/2047) = 81`, exactamente el valor medido.
+
+**Corrección (2026-08-29):** `analog.ts` recalibrado para dividir por 1650 (la cuenta real a 3,3 V) en vez de 2047. Detalle y fundamento completo en `ARQUITECTURA.md` §8 (D1).
+
+**Pendiente:** repetir esta verificación con la placa tras la recalibración, para confirmar que las tres torres llegan a 100 y que ANA-3/ANA-4 siguen dentro de los márgenes provisorios de D6 (que no se ajustaron, dado que la recalibración solo reescala, no cambia el ruido de fondo).
+
+**Estado: abierto**, pendiente de remedir tras la corrección.
 
 ---
 

@@ -13,7 +13,7 @@ for (let port = 1; port <= 6; port++) {
     }
 
     let read1 = kroma.digitalInput(port)
-    basic.pause(200)
+    basic.pause(2000)
     let read2 = kroma.digitalInput(port)
     serial.writeLine("digital read 1: " + read1)
     serial.writeLine("digital read 2: " + read2)

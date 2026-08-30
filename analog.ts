@@ -6,6 +6,15 @@ namespace kroma {
 
     let initialized = false
 
+    // Raw ADS1015 code for the 3.3V ceiling every port's analog line is
+    // designed to reach (D3, ARQUITECTURA.md §8): with GAIN_ONE each count
+    // is 4096mV/2048 = 2mV, so 3300mV / 2mV = 1650. Dividing by this
+    // instead of the configured full-scale (2047, i.e. 4.096V) makes "100"
+    // mean the same real voltage on every port — ports 1-3 already
+    // calibrate 100 to the micro:bit's own 3.3V ADC reference (raw/1023),
+    // this matches that instead of the ADS1015's unused extra headroom.
+    const RAW_AT_3V3 = 1650
+
     // No PCA9536-style persistent state (§6.3): the ADS1015 config register
     // is rewritten on every reading regardless, so there's nothing to set up
     // once at startup. Kept as a flag for the ensureInitialized() convention
@@ -65,7 +74,7 @@ namespace kroma {
         // or a small negative code near 0V (offset/noise) reads back as a
         // large positive value instead.
         if (raw > 2047) raw -= 4096
-        return clamp(Math.round(raw * 100 / 2047))
+        return clamp(Math.round(raw * 100 / RAW_AT_3V3))
     }
 
     export function readAnalog(port: number): number {
