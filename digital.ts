@@ -75,16 +75,4 @@ namespace kroma {
         }
         return (readReg(REG_INPUT) & mask) !== 0
     }
-
-    // TEMPORARY diagnostic for the V1 field finding (ports 3/5 stuck high,
-    // see docs/VERIFICACION.md V1) — not a public block. Bypasses the
-    // in-memory mirrors and reads the PCA9536's real registers, so a serial
-    // log can tell a software mirror bug apart from an I2C write that isn't
-    // reaching the chip. Remove once the root cause is confirmed and fixed.
-    export function _debugPca9536(): number[] {
-        let realConfig = readReg(REG_CONFIG)
-        control.waitMicros(5000)
-        let realOutput = readReg(REG_OUTPUT)
-        return [configMirror, outputMirror, realConfig, realOutput]
-    }
 }

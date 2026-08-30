@@ -71,9 +71,13 @@ Las tablas de `ARQUITECTURA.md` sección 4 se apoyan en esta correspondencia. Si
 
 **Conclusión parcial:** las dos sospechas originales (bug de máscara en `digital.ts`, bug en el lookup nuevo de puertos enchufables) quedan **descartadas por datos reales de la placa**, no por lectura de código. La causa real sigue sin confirmar. Candidatos que quedan abiertos: un problema físico específico de los pines 0 y 3 del PCA9536 en esta placa (cableado, soldadura — coincide con que sean los pines extremos del encapsulado), o un problema real en la escritura I2C que la lectura de registros disponible todavía no permite aislar de forma confiable.
 
-**Siguiente paso sugerido, no ejecutado:** medir con multímetro directamente sobre los pines 0 y 3 del PCA9536 (no sobre el contacto del RJ45) mientras corre el loop de prueba, para separar "el chip no mueve su propio pin" de "el chip mueve el pin pero algo entre el chip y el RJ45 no lo lleva" — evita depender de la lectura I2C todavía no validada.
+**Repetición con multímetro (2026-08-29, mismo día, Santi):** se volvió a correr el mismo build de diagnóstico (puertos 3 y 5 aislados), esta vez midiendo con multímetro directo sobre el contacto del RJ45 en lugar de confiar en la lectura I2C de registros. **Cumple.** Iteración tras iteración, ambos puertos responden: 3,3 V cuando el log anuncia `true`, 0 V cuando anuncia `false`. Confirma lo que ya indicaban `configMirror`/`outputMirror`: la escritura sí llega al chip y mueve el pin correctamente para los dos bits extremos.
 
-**Estado: abierto.** No se tocó `digital.ts` ni `tables.ts` a ciegas — ninguno de los dos mostró evidencia de estar mal. Ver hallazgo 8 de `PENDIENTES.md`.
+**Conclusión:** no había bug de software. La medición original (`3V constante, sin responder`) no se pudo reproducir con el mismo código sin cambios — apunta a un error en el montaje o la medición de esa primera prueba manual, no a un defecto en `digital.ts` ni en el lookup de puertos enchufables de §2.2. Se retiró la instrumentación temporal (`_debugPca9536` en `digital.ts`) y se restauró `test.ts` a un programa normal que recorre los seis puertos con una variable, para dejar una prueba de humo mínima que sí ejercita el mecanismo de puertos enchufables.
+
+**Pendiente para dar DIG-1/2/3 por cerrado del todo:** este resultado confirma puerto por puerto (1, 2, 4 y 6 en la prueba original; 3 y 5 acá) pero no repite exactamente el programa original de seis puertos en una sola corrida con multímetro. Dado que los cuatro puertos ya estaban confirmados y estos dos ahora también, individualmente, se da por cumplido — pero si se quiere paridad exacta con el procedimiento, alcanza con repetir la prueba con `test.ts` tal como quedó (recorre los seis con una variable) y confirmar los seis de una sola vez.
+
+**Estado: cumple.** Ver hallazgo 8 de `PENDIENTES.md`, cerrado.
 
 ---
 
