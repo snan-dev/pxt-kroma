@@ -54,7 +54,26 @@ Las tablas de `ARQUITECTURA.md` sección 4 se apoyan en esta correspondencia. Si
 
 ## V1 — Salidas digitales
 
-*(Se completa al cerrar la tarea 2. Verifica DIG-1, DIG-2, DIG-3 y la porción de GEN-4.)*
+**Verifica:** DIG-1, DIG-2, DIG-3, la porción de GEN-4, y la porción de GEN-5 sobre el acotamiento de puerto de §2.2.
+
+**Qué conectar:** LED con resistencia en serie (o multímetro) entre el contacto 4 (línea digital) y el contacto 5 (GND) de cada uno de los seis puertos.
+
+**Qué ejecutar:** programa que recorre los seis puertos con `digitalOutput`, alternando encendido y apagado, usando una variable numérica (no el desplegable) para ejercitar también el mecanismo de puertos enchufables de §2.2.
+
+**Qué observar:** el LED (o la tensión) de cada puerto responde al cambio de valor.
+
+**Resultado (2026-08-29): NO cumple para los puertos 3 y 5.** Primera vez que se prueba V1 sobre los seis puertos físicos (Santi). Puertos 1, 2, 4 y 6 responden correctamente. Puertos 3 y 5 quedan fijos en ~3,3 V entre los contactos 4 y 5, sin responder a `digitalOutput`. Corresponden a los pines 0 y 3 del PCA9536 — los dos bits extremos del nibble de 4 bits que usan `configMirror`/`outputMirror` — mientras que los puertos que sí funcionan (pines 2 y 1) son los del medio.
+
+**Diagnóstico realizado (no concluyente todavía):** se aisló el problema con un build descartable (`test.ts` temporal, no comiteado) que ejercita solo los puertos 3 y 5 y loguea por serie, en cada iteración de un loop largo:
+- El resultado de `findPortEntry(3)` / `findPortEntry(5)` (el lookup centralizado de §2.2): resuelve `digital.pin=0` para el puerto 3 y `digital.pin=3` para el puerto 5 — **coincide exactamente con la tabla, descarta el lookup como causa**.
+- `configMirror`/`outputMirror` (el estado que el software cree haber escrito) en cada paso: siguen la secuencia esperada bit a bit — `configMirror` pasa 15→14 al apagar la entrada del pin 0, luego 14→6 al apagar también la del pin 3 (14 - 8 = 6); `outputMirror` alterna 0→1→0 para el puerto 3 y 0→8→0 para el puerto 5 — **coincide exactamente con la máscara `1 << pin` esperada para ambos bits extremos, descarta un bug de máscara/índice en el software de `digital.ts`**.
+- Lectura de los registros reales del PCA9536 por I2C (función temporal `_debugPca9536`, no existe en el driver real): siempre devuelve 0 tanto para el registro de configuración como el de salida, sin importar qué se haya escrito. Este dato **no es confiable todavía**: ejercita un camino de lectura (leer CONFIG y OUTPUT) que el driver nunca usó antes de este diagnóstico — solo se leía INPUT, y nunca sobre hardware real — así que no se puede distinguir con lo que hay si es un hallazgo real o un artefacto de la propia instrumentación de depuración.
+
+**Conclusión parcial:** las dos sospechas originales (bug de máscara en `digital.ts`, bug en el lookup nuevo de puertos enchufables) quedan **descartadas por datos reales de la placa**, no por lectura de código. La causa real sigue sin confirmar. Candidatos que quedan abiertos: un problema físico específico de los pines 0 y 3 del PCA9536 en esta placa (cableado, soldadura — coincide con que sean los pines extremos del encapsulado), o un problema real en la escritura I2C que la lectura de registros disponible todavía no permite aislar de forma confiable.
+
+**Siguiente paso sugerido, no ejecutado:** medir con multímetro directamente sobre los pines 0 y 3 del PCA9536 (no sobre el contacto del RJ45) mientras corre el loop de prueba, para separar "el chip no mueve su propio pin" de "el chip mueve el pin pero algo entre el chip y el RJ45 no lo lleva" — evita depender de la lectura I2C todavía no validada.
+
+**Estado: abierto.** No se tocó `digital.ts` ni `tables.ts` a ciegas — ninguno de los dos mostró evidencia de estar mal. Ver hallazgo 8 de `PENDIENTES.md`.
 
 ---
 
