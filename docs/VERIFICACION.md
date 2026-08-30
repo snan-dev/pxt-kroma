@@ -97,9 +97,9 @@ Las tablas de `ARQUITECTURA.md` sección 4 se apoyan en esta correspondencia. Si
 
 **Corrección (2026-08-29):** `analog.ts` recalibrado para dividir por 1650 (la cuenta real a 3,3 V) en vez de 2047. Detalle y fundamento completo en `ARQUITECTURA.md` §8 (D1).
 
-**Pendiente:** repetir esta verificación con la placa tras la recalibración, para confirmar que las tres torres llegan a 100 y que ANA-3/ANA-4 siguen dentro de los márgenes provisorios de D6 (que no se ajustaron, dado que la recalibración solo reescala, no cambia el ruido de fondo).
+**Resultado tras la recalibración (2026-08-29, Santi):** repetida la prueba con la placa — las tres torres llegan a 100 con el potenciómetro a fondo, sin la diferencia de ~19 puntos de antes. **Cumple ANA-2.**
 
-**Estado: abierto**, pendiente de remedir tras la corrección.
+**Estado: cumple.** Ver hallazgo 9 de `PENDIENTES.md`, cerrado. Los márgenes provisorios de ANA-3/ANA-4 (D6) no se remidieron puntualmente en esta pasada — quedan como estaban, sujetos a ajuste si en el uso real aparece algo fuera de lo esperado.
 
 ---
 
