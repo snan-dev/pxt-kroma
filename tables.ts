@@ -34,6 +34,19 @@ namespace kroma {
         B = 2,
     }
 
+    // Shared by the analog compare event today (ANA-5) and the distance
+    // compare event when Task 6 implements it (ULT-4) — not declared twice.
+    // GEN-6: each member name is as permanent as a blockId once a docente
+    // saves a project with the block configured.
+    export enum KromaCompareOp {
+        //% block="="
+        Equal,
+        //% block="<"
+        LessThan,
+        //% block=">"
+        GreaterThan
+    }
+
     // Shape of a PORT_TABLE row. Declared outside the @table markers so the
     // literal below stays plain JS for tools/check-tablas.js (§6.5) — the
     // annotation lives on the PORT_TABLE declaration, not inside the array.
@@ -81,6 +94,16 @@ namespace kroma {
             if (PORT_TABLE[i].port === rounded) return PORT_TABLE[i]
         }
         return PORT_TABLE[0] // unreachable: rounded is always 1-6, and every value has a row
+    }
+
+    // Thin wrapper around findPortEntry's own rounding/clamping (GEN-5), for
+    // call sites that need the resolved port number itself rather than a
+    // PORT_TABLE row — events.ts stores it in a long-lived watch record, so
+    // it needs the value normalized once at registration time. Delegates to
+    // findPortEntry instead of repeating the round/clamp math, keeping it
+    // the one place that knows 1-6 is the whole range (§6.4).
+    export function clampPort(port: number): number {
+        return findPortEntry(port).port
     }
 
     // @table:motors:start

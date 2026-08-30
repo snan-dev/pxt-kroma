@@ -22,9 +22,10 @@ Toda la especificación está cubierta y ninguna tarea es huérfana.
 | ANA-1, ANA-2, ANA-3, ANA-4 | 3 |
 | SRV-1, SRV-2, SRV-3 | 4 |
 | MOT-1, MOT-2, MOT-3, MOT-4, MOT-5, MOT-6 | 5 |
-| ULT-1, ULT-2, ULT-3 | 6 |
+| ULT-1, ULT-2, ULT-3, ULT-4 | 6 |
 | DOC-1, DOC-2 | 7 |
 | SAL-1, SAL-2, SAL-3 | 9 |
+| DIG-5, ANA-5 | 10 |
 
 ---
 
@@ -123,14 +124,14 @@ MOT-6 es el criterio que más fácil se pasa por alto y el que primero va a nota
 
 ## Tarea 6 — Sensor ultrasónico
 
-**Satisface:** ULT-1, ULT-2, ULT-3
+**Satisface:** ULT-1, ULT-2, ULT-3, ULT-4
 **Bloqueada por:** D6
 
-Disparo y medición de eco sobre la misma línea.
+Disparo y medición de eco sobre la misma línea. Nace directamente con el bloque de evento de ULT-4 incluido (mismo mecanismo de la Tarea 10, ver `ARQUITECTURA.md` §2.3), sin retoque retroactivo — mismo espíritu que la Tarea 4 con los puertos enchufables de §2.2.
 
-**Criterios de aceptación:** los de ULT-1 a ULT-3 tal como están redactados.
+**Criterios de aceptación:** los de ULT-1 a ULT-4 tal como están redactados.
 
-ULT-2 se verifica mirando el selector del bloque en el editor, no probando que falle en otro puerto: el requisito es que la opción no exista.
+ULT-2 se verifica mirando el selector del bloque en el editor, no probando que falle en otro puerto: el requisito es que la opción no exista. ULT-4 reutiliza el enumerado restringido a 4/6 (no enchufable, mismo motivo que ULT-2/SAL-2) y el margen de tolerancia que resuelva D6 para esta tarea.
 
 ---
 
@@ -197,6 +198,24 @@ Driver nuevo (`analogOutput.ts`) usando `pins.analogWritePin` sobre P9/P12, sin 
 - El bloque no expone la palabra "PWM" ni ninguna otra del vocabulario prohibido por GEN-2.
 - Valores fuera de 0–100 se acotan al extremo correspondiente (GEN-5).
 - Con un motor girando a baja velocidad (Tarea 5, si ya está cerrada) y la salida analógica activa, ninguno de los dos pierde el período que configuró. Si Tarea 5 se cierra después, la verificación corre al cerrar esa.
+
+---
+
+## Tarea 10 — Bloques de evento
+
+**Satisface:** DIG-5, ANA-5
+**Agregada:** 2026-08-30, a partir de un pedido de Santi de bloques reactivos ("cuando...") para los puertos digitales y analógicos, con la categoría Distancia dejada planeada para cuando se implemente la Tarea 6 (ver ULT-4 ahí).
+**Bloqueada por:** nada — Tareas 2 y 3 ya cerradas con código.
+
+Mecanismo nuevo: un fiber en segundo plano (`control.inBackground`) que arranca solo la primera vez que se registra algún bloque de evento —misma inicialización perezosa que `ensureInitialized()` de §6.2—, sondea los puertos con algún evento registrado y dispara con `control.raiseEvent` una sola vez por transición hacia la condición pedida (no en cada sondeo mientras se sostiene). Ver `ARQUITECTURA.md` §2.3 para la forma pública de los bloques.
+
+**Criterios de aceptación:** los de DIG-5 y ANA-5 tal como están redactados en la especificación, más:
+- El intervalo de sondeo y el mecanismo de antirrebote no producen disparos repetidos para una misma transición, verificado con la placa.
+- Con dos bloques de evento registrados en el mismo puerto y condición, ambos se ejecutan — comportamiento estándar de `control.onEvent`, no hace falta lógica propia para permitirlo.
+- El operador "=" de ANA-5 usa el margen ya declarado para ANA-2 (`ARQUITECTURA.md` §8), no una igualdad exacta — con el potenciómetro detenido dentro de ese margen del umbral, el bloque se ejecuta; fuera de ese margen, no.
+- El parámetro de puerto de ambos bloques acepta un bloque enchufado (variable, cuenta, contador de `for`), igual que el resto de los bloques con el enumerado completo de 6 puertos (§2.2) — incluye verificar qué pasa al enchufar el mismo bloque de evento dentro de un `for`: registra un evento por iteración, comportamiento esperado y documentado, no un error.
+
+**Cierre adicional:** verificar contra `pxt-microbit/libs/core/input.ts` (no asumir) que la fuente de evento elegida no colisiona con las que ya usa el target, antes de fijar el `blockId` definitivo.
 
 ---
 

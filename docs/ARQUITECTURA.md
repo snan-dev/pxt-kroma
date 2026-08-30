@@ -73,6 +73,29 @@ Mecanismo verificado contra el código fuente real de `pxt-microbit` (`libs/core
 
 **Bloques a los que aplica:** `digitalOutput`, `digitalInput`, `analogInput` (retoque retroactivo sobre Tareas 2 y 3) y, de acá en más, cualquier bloque nuevo que use el enumerado completo de puertos — la Tarea 4 (Servos) nace directamente con este mecanismo, no hace falta retocarla después.
 
+### 2.3 Bloques de evento (agregado 2026-08-30)
+
+Además de los bloques reporter que el docente arrastra dentro de un "si ⟨⟩ entonces" o lee con un `mostrar número`, la extensión suma bloques reactivos con cuerpo de código —estilo "al presionar botón A" del target de micro:bit—, que corren solos cuando se cumple una condición, sin que el docente arme el sondeo con un bucle. Decisión de Santi, tomada después de discutir el trade-off contra la alternativa más simple (un bloque reporter booleano suelto, que para el caso digital ya existe hoy: `digitalInput` devuelve `boolean` y encaja directo en el "si" nativo sin bloque nuevo).
+
+**Mecanismo.** `control.onEvent(source, value, handler)` + `control.raiseEvent(source, value)`, el patrón estándar de PXT. Un único fiber en segundo plano (`control.inBackground`) arranca la primera vez que se registra algún bloque de evento de KROMA —misma inicialización perezosa que `ensureInitialized()` (§6.2), así que GEN-4 queda cubierto sin necesitar bloque previo del docente—, sondea todos los puertos con algún evento registrado y dispara el handler correspondiente una sola vez por transición hacia la condición pedida, nunca en cada sondeo mientras la condición se sostiene. El intervalo de sondeo y el detalle de antirrebote son interior de driver (descriptivo, se fijan con la placa en la mano al implementar la Tarea 10) — no bloquean el diseño de la superficie pública. Verificar contra `pxt-microbit/libs/core/input.ts` (no asumir) que la fuente de evento elegida no colisiona con las que ya usa el target, antes de fijar el `blockId` definitivo.
+
+**Dónde viven en la paleta.** No forman una subcategoría propia. Cada bloque de evento va en la misma subcategoría que su bloque reporter equivalente: digital y analógico en "Input" (junto a `digitalInput`/`analogInput`), distancia en "Distance" cuando se implemente la Tarea 6. Sigue el mismo precedente que ya usa el propio target de micro:bit, donde `onButtonPressed` e `isPressed` conviven en "Input" — a verificar contra `pxt-microbit/libs/core/input.ts` antes de implementar, mismo hábito de verificación que ya se usó para el patrón `shadow` de §2.2.
+
+**Puerto enchufable.** El parámetro de puerto de los bloques de evento digital y analógico sigue el mismo patrón `shadow` de §2.2 — acepta un bloque enchufado, no solo el desplegable. Consecuencia a documentar para el docente: como el bloque de evento se ejecuta una vez al arrancar el programa (es cuando registra el handler, no cuando se cumple la condición), enchufarlo dentro de un `for` no es un error — registra un evento por iteración, un patrón válido para "cuando cualquiera de estos puertos cambie, hacer lo mismo". El enumerado restringido a 4/6 (evento de distancia) no es enchufable, mismo motivo que ULT-2/SAL-2.
+
+**Forma de los bloques:**
+
+```
+cuando el puerto %port pase a %state          → kromaOnDigitalPortEvent
+cuando la lectura del puerto %port %op %value → kromaOnAnalogCompareEvent
+```
+
+`%state` reutiliza el mismo desplegable Verdadero/Falso (`toggleOnOff`) que ya usa `digitalOutput`, en vez de inventar un segundo vocabulario de encendido/apagado (GEN-3). `%op` es un enumerado nuevo (`=`, `<`, `>`) compartido por el evento analógico y, a futuro, el de distancia.
+
+**El operador "=" en analógica no es una igualdad exacta.** Sobre una lectura ruidosa, comparar bit a bit casi nunca dispara. "=" usa el margen ya declarado para ANA-2 (§8) como ventana de igualdad práctica: dispara cuando la lectura entra en esa ventana alrededor del umbral, con el mismo criterio de antirrebote que "<" y ">" (dispara una vez al entrar a la ventana, no en cada sondeo mientras se sostiene adentro).
+
+**Distancia, planeado para cuando se implemente la Tarea 6.** Mismo mecanismo y mismo enumerado de operador que el evento analógico, pero con el puerto restringido a 4/6 sin shadow (igual que el resto de los bloques de distancia). No genera tarea propia: se suma como ULT-4 a los criterios de la Tarea 6 existente, para que nazca con el evento incluido en vez de agregarse como retoque retroactivo — mismo espíritu que la Tarea 4 con los puertos enchufables de §2.2.
+
 ---
 
 ## 3. Restricciones de hardware que la arquitectura debe respetar
@@ -276,6 +299,7 @@ Desde §2.2, todo bloque que use el enumerado completo de 6 puertos recibe el pa
 - **Mover un servo:** pendiente
 - **Mover un motor:** pendiente
 - **Leer distancia:** pendiente
+- **Disparar evento de puerto:** pendiente (Tarea 10) — ver §2.3
 
 ---
 
@@ -320,3 +344,5 @@ Son valores de partida razonables para un ADC de 10/12 bits con el ruido típico
 **ULT-1, ULT-3:** sin resolver. D6 sigue abierta para estos dos criterios — se fija al planificar la Tarea 6, con el driver del sensor de distancia a la vista.
 
 **Puertos enchufables con bloque (2026-08-29).** Fundamento completo en §2.2. El enumerado completo de 6 puertos acepta que se le enchufe otro bloque (patrón `shadow` de PXT, verificado contra `pxt-microbit/libs/core/pins.ts`); los enumerados restringidos a 4/6 (distancia, salida analógica) no, para no romper ULT-2/SAL-2.
+
+**Bloques de evento (2026-08-30).** Fundamento completo en §2.3. Mecanismo elegido: evento real con cuerpo de código (`control.onEvent`/`control.raiseEvent` + fiber en segundo plano), no un bloque reporter booleano suelto — decisión de Santi, con el trade-off completo (tráfico I2C de sondeo constante, antirrebote) discutido y aceptado antes de implementar. Ubicación en la paleta: la subcategoría existente de cada bloque equivalente (Input para digital/analógico, Distance para distancia), no una subcategoría "Events" nueva — sigue el precedente de `onButtonPressed`/`isPressed` conviviendo en "Input" en el target de micro:bit (a verificar contra `pxt-microbit/libs/core/input.ts` al implementar). Puerto enchufable: sí, mismo patrón `shadow` de §2.2, aplicado también a estos bloques.

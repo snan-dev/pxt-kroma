@@ -72,6 +72,11 @@ El docente puede leer el estado de la línea digital de cualquiera de los seis p
 
 **Aceptación:** con un pulsador o una señal digital conocida conectada, el bloque de lectura devuelve un valor que refleja el estado real de la línea, en los seis puertos sin excepción.
 
+### DIG-5 — Evento de cambio de estado *(agregado 2026-08-30)*
+El docente puede ejecutar un bloque de código automáticamente cuando la línea digital de un puerto pasa al estado (Verdadero o Falso) que eligió, sin sondear el puerto a mano en un bucle.
+
+**Aceptación:** con un pulsador o una señal digital conocida conectada, y un bloque de evento configurado para un estado en ese puerto, el bloque se ejecuta una vez por cada transición hacia ese estado, en los seis puertos sin excepción; no se ejecuta de nuevo mientras el estado se sostiene.
+
 ---
 
 ## ANA — Entradas analógicas
@@ -95,6 +100,11 @@ Al aumentar la tensión en la entrada, el valor leído aumenta.
 En los extremos del recorrido el valor es estable y corresponde al mínimo y al máximo de la escala.
 
 **Aceptación:** con el potenciómetro en cada extremo, veinte lecturas consecutivas se mantienen dentro del margen declarado del valor extremo, sin saturar antes de llegar al tope.
+
+### ANA-5 — Evento de comparación *(agregado 2026-08-30)*
+El docente puede ejecutar un bloque de código automáticamente cuando la lectura analógica de un puerto cruza el umbral que eligió, con el operador elegido (menor que, mayor que, o igual dentro del margen declarado en `ARQUITECTURA.md`).
+
+**Aceptación:** con un potenciómetro conectado, moverlo de un lado al otro del umbral configurado dispara el bloque una vez por cruce, en los seis puertos; el bloque no se ejecuta repetidamente mientras el valor se mantiene del mismo lado del umbral.
 
 ---
 
@@ -187,6 +197,11 @@ Cuando no hay eco, el bloque devuelve un valor definido y documentado, no un val
 
 **Aceptación:** apuntando al vacío, el bloque devuelve consistentemente el valor declarado en `ARQUITECTURA.md`.
 
+### ULT-4 — Evento de comparación de distancia *(agregado 2026-08-30)*
+El docente puede ejecutar un bloque de código automáticamente cuando la distancia medida cruza el umbral que eligió, con el mismo vocabulario de operador que ANA-5, en los puertos 4 y 6.
+
+**Aceptación:** con un objeto acercado o alejado del sensor, cruzar el umbral configurado de un lado al otro dispara el bloque una vez por cruce, en los puertos 4 y 6; el bloque no se ejecuta repetidamente mientras la distancia se mantiene del mismo lado del umbral.
+
 ---
 
 ## DOC — Documentación para el docente
@@ -214,7 +229,7 @@ Una tarea **no arranca** si toca un requisito con una ambigüedad sin resolver. 
 | D3 | Ganancia por defecto del conversor analógico | ANA-3, ANA-4 | **Resuelta (2026-08-29):** ganancia GAIN_ONE (±4,096 V) del ADS1015 — el rango más chico que contiene la tensión de trabajo esperada (3,3 V) sin saturar. Ver `ARQUITECTURA.md` §8. |
 | D4 | Idioma de las cadenas fuente | GEN-2, GEN-3 | **Resuelta (revisada 2026-08-29):** código fuente en inglés, con capa de localización en `_locales/es-ES/` para el docente. Ver `ARQUITECTURA.md` §8 y la Tarea 8 de `PLAN-DE-TAREAS.md`. |
 | D5 | Nombre definitivo del paquete y del repositorio | GEN-6 | **Resuelta:** paquete y repositorio `pxt-kroma`, nombre visible KROMA |
-| D6 | Margen de tolerancia declarado para ANA-2, ANA-3, ANA-4, ULT-1 y ULT-3 | ULT-1, ULT-3 | **Resuelta para ANA-2/3/4 (2026-08-29)**, ver `ARQUITECTURA.md` §8. Sigue **abierta para ULT-1 y ULT-3** — se resuelve al planificar la Tarea 6. |
+| D6 | Margen de tolerancia declarado para ANA-2, ANA-3, ANA-4, ULT-1, ULT-3 y ULT-4 | ULT-1, ULT-3, ULT-4 | **Resuelta para ANA-2/3/4 (2026-08-29)**, ver `ARQUITECTURA.md` §8. Sigue **abierta para ULT-1, ULT-3 y ULT-4** — se resuelve al planificar la Tarea 6. |
 
 ---
 

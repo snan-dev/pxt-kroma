@@ -3,5 +3,10 @@
     "{id:subcategory}Output": "Salida",
     "kroma.digitalOutput|block": "escribir en el puerto %port el valor %value",
     "kroma.digitalInput|block": "leer estado digital del puerto %port",
-    "kroma.analogInput|block": "leer valor analógico del puerto %port"
+    "kroma.analogInput|block": "leer valor analógico del puerto %port",
+    "kroma.onDigitalPortEvent|block": "cuando el puerto %port pase a %state",
+    "kroma.onAnalogCompareEvent|block": "cuando la lectura del puerto %port %op %threshold",
+    "KromaCompareOp.Equal|block": "=",
+    "KromaCompareOp.LessThan|block": "<",
+    "KromaCompareOp.GreaterThan|block": ">"
 }

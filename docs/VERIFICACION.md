@@ -81,6 +81,22 @@ Las tablas de `ARQUITECTURA.md` sección 4 se apoyan en esta correspondencia. Si
 
 ---
 
+## V1 bis — Entradas digitales
+
+**Verifica:** DIG-4.
+
+**Qué conectar:** línea digital (contacto 4) de cada uno de los seis puertos, puenteada manualmente a 3,3 V (contacto 8) y a GND (contacto 5), alternando.
+
+**Qué ejecutar:** programa que lee el estado de un puerto con el bloque de lectura digital y lo muestra por el puerto serie, repetido en corridas separadas cambiando el puerto leído en el código cada vez, hasta cubrir los seis.
+
+**Qué observar:** el valor leído por serie refleja el estado real de la línea (3,3 V → encendido, GND → apagado) en cada puerto.
+
+**Resultado (2026-08-29, Santi): Cumple.** Probados los seis puertos en corridas separadas, cada una puenteando a 3,3 V y a GND, la lectura por serial refleja el estado real en todos los casos.
+
+**Estado: cumple.**
+
+---
+
 ## V2 — Entradas analógicas
 
 **Verifica:** ANA-1 a ANA-4.
@@ -99,7 +115,9 @@ Las tablas de `ARQUITECTURA.md` sección 4 se apoyan en esta correspondencia. Si
 
 **Resultado tras la recalibración (2026-08-29, Santi):** repetida la prueba con la placa — las tres torres llegan a 100 con el potenciómetro a fondo, sin la diferencia de ~19 puntos de antes. **Cumple ANA-2.**
 
-**Estado: cumple.** Ver hallazgo 9 de `PENDIENTES.md`, cerrado. Los márgenes provisorios de ANA-3/ANA-4 (D6) no se remidieron puntualmente en esta pasada — quedan como estaban, sujetos a ajuste si en el uso real aparece algo fuera de lo esperado.
+**Resultado ANA-3/ANA-4 (2026-08-29, Santi): Cumple.** Verificado en la misma prueba que ANA-2, en los seis puertos: al girar el potenciómetro lentamente no se observaron saltos hacia atrás (ANA-3), y en cada extremo del recorrido el valor se mantuvo estable en 0 o 100 sin saturar antes de llegar al tope (ANA-4).
+
+**Estado: cumple (ANA-1 a ANA-4).** Ver hallazgo 9 de `PENDIENTES.md`, cerrado.
 
 ---
 

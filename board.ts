@@ -48,6 +48,44 @@ namespace kroma {
         return readAnalog(port)
     }
 
+    /**
+     * Runs code once when a port's digital line changes to the chosen state.
+     * @param port the port to watch
+     * @param state the state that triggers the handler
+     */
+    //% blockId="kromaOnDigitalPortEvent"
+    //% block="on port %port event %state"
+    //% port.shadow="kromaPortShadow"
+    //% state.shadow="toggleOnOff"
+    //% subcategory="Input"
+    //% weight=80
+    export function onDigitalPortEvent(port: number, state: boolean, handler: () => void): void {
+        let p = clampPort(port)
+        watchDigital(p, state)
+        control.onEvent(digitalSource(p), state ? 1 : 0, handler)
+    }
+
+    /**
+     * Runs code once when a port's analog reading crosses the chosen threshold.
+     * @param port the port to watch
+     * @param op the comparison to trigger on
+     * @param threshold a value from 0 (minimum) to 100 (maximum)
+     */
+    //% blockId="kromaOnAnalogCompareEvent"
+    //% block="on port %port reading %op %threshold"
+    //% port.shadow="kromaPortShadow"
+    //% threshold.min=0 threshold.max=100
+    //% subcategory="Input"
+    //% weight=70
+    export function onAnalogCompareEvent(port: number, op: KromaCompareOp, threshold: number, handler: () => void): void {
+        let p = clampPort(port)
+        let t = Math.round(threshold)
+        if (t < 0) t = 0
+        if (t > 100) t = 100
+        watchAnalog(p, op, t)
+        control.onEvent(analogSource(p, op), t, handler)
+    }
+
     // Default shadow block plugged into the port parameter of any block
     // using the full 6-port enumeration (ARQUITECTURA.md §2.2). Being a
     // real block (not an inlined field) is what lets a docente unplug the
