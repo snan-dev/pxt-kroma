@@ -24,6 +24,21 @@ for (let loopPort = 1; loopPort <= 6; loopPort++) {
     })
 }
 
+// Task 9 — analog output (SAL-1/2/3). Sweep 0-100-0 on ports 4 and 6, with
+// a short pause between steps, to check intermediate levels are visibly
+// different and the extremes are stable (0 off, 100 max).
+for (let sweepPort = 4; sweepPort <= 6; sweepPort += 2) {
+    serial.writeLine("=== analog output port " + sweepPort + " ===")
+    for (let level = 0; level <= 100; level += 10) {
+        kroma.analogOutput(sweepPort, level)
+        basic.pause(200)
+    }
+    for (let level = 100; level >= 0; level -= 10) {
+        kroma.analogOutput(sweepPort, level)
+        basic.pause(200)
+    }
+}
+
 // Recorre los seis puertos: blink en la línea digital, dos lecturas
 // digitales, y una lectura continua de 5 segundos en la línea analógica.
 for (let port = 1; port <= 6; port++) {

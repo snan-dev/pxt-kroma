@@ -139,6 +139,25 @@ Las tablas de `ARQUITECTURA.md` sección 4 se apoyan en esta correspondencia. Si
 
 ---
 
+## V6 — Salida analógica
+
+**Verifica:** SAL-1, SAL-2, SAL-3.
+
+**Qué conectar:** un LED con resistencia en serie entre el contacto 4 (línea digital, la misma que lleva la salida analógica en los puertos 4 y 6) y el contacto 5 (GND).
+
+**Qué ejecutar:** el barrido de `test.ts` (Tarea 9) — `analogOutput` de 0 a 100 y de vuelta a 0, en pasos de 10 con pausa corta, en el puerto 4 y después en el puerto 6.
+
+**Qué observar:**
+- **SAL-1:** los niveles intermedios producen brillos perceptiblemente distintos entre sí; 0 apaga el LED por completo; 100 da la intensidad máxima. En ambos puertos.
+- **SAL-2:** el selector del bloque (`NativeDigitalPort`) no ofrece ninguna opción distinta de 4 y 6 — verificable leyendo el bloque en el editor, sin necesidad de la placa.
+- **SAL-3:** con un servo en movimiento en otro puerto mientras la salida analógica está fija en un valor intermedio en el puerto 4 o 6, el servo no pierde suavidad de movimiento y el brillo del LED no parpadea de forma distinta a como lo hace sin el servo activo.
+
+**Resultado:** Pendiente de verificación física con la placa.
+
+**Verificación cruzada con motores (§3.9, hallazgo 4 de `PENDIENTES.md`):** con la Tarea 5 (motores) todavía sin cerrar, la verificación cruzada de período de PWM entre motores y salida analógica queda pendiente hasta que esa tarea se implemente — no bloquea el cierre de SAL-1/2/3 por sí sola (`PLAN-DE-TAREAS.md`, Tarea 9).
+
+---
+
 ## Registro de ejecuciones
 
 | Fecha | Versión | Procedimientos ejecutados | Resultado | Observaciones |

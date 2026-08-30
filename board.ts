@@ -21,6 +21,20 @@ namespace kroma {
     }
 
     /**
+     * Sets the analog output level of port 4 or 6, on a 0-100 scale.
+     * @param port the port to write to
+     * @param value a level from 0 (off) to 100 (maximum)
+     */
+    //% blockId="kromaAnalogOutput"
+    //% block="write analog port %port to %value"
+    //% value.min=0 value.max=100 value.defl=50
+    //% subcategory="Output"
+    //% weight=90
+    export function analogOutput(port: NativeDigitalPort, value: number): void {
+        writeAnalogOutput(port, value)
+    }
+
+    /**
      * Reads the state of a port's digital line.
      * @param port the port to read from
      * @return true if the line is on, false if it's off

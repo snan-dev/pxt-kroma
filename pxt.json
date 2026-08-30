@@ -12,6 +12,7 @@
         "servos.ts",
         "motors.ts",
         "ultrasonic.ts",
+        "analogOutput.ts",
         "events.ts",
         "board.ts",
         "_locales/es-ES/pxt-kroma-strings.json",
