@@ -100,6 +100,22 @@ namespace kroma {
         control.onEvent(analogSource(p, op), t, handler)
     }
 
+    /**
+     * Moves the servo connected to a port to an angle.
+     * @param port the port the servo is connected to
+     * @param angle the angle to move to, in degrees
+     */
+    //% blockId="kromaSetServoAngle"
+    //% block="set servo port %port to %angle degrees"
+    //% port.shadow="kromaPortShadow"
+    //% angle.shadow="protractorPicker"
+    //% angle.defl=90
+    //% subcategory="Servos"
+    //% weight=100
+    export function setServoAngle(port: number, angle: number): void {
+        moveServo(port, angle)
+    }
+
     // Default shadow block plugged into the port parameter of any block
     // using the full 6-port enumeration (ARQUITECTURA.md §2.2). Being a
     // real block (not an inlined field) is what lets a docente unplug the

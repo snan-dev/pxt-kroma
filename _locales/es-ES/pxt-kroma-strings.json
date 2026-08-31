@@ -1,6 +1,8 @@
 {
     "{id:subcategory}Input": "Entrada",
     "{id:subcategory}Output": "Salida",
+    "{id:subcategory}Servos": "Servos",
+    "kroma.setServoAngle|block": "mover servo del puerto %port a %angle grados",
     "kroma.digitalOutput|block": "escribir en el puerto %port el valor %value",
     "kroma.analogOutput|block": "escribir en el puerto %port el valor analógico %value",
     "kroma.digitalInput|block": "leer estado digital del puerto %port",

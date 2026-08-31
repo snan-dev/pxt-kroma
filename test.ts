@@ -1,5 +1,14 @@
 // Test program. Not compiled into the package (see testFiles in pxt.json).
 
+// Task 4 — servos (SRV-1, SRV-3). Six distinct angles held at once: at a
+// glance every port reaches a visibly different position (SRV-1), and all
+// six stay put simultaneously (SRV-3). Reused later for the Task 5 (MOT-6)
+// and Task 9 (SAL-3) cross-checks with servos actually moving.
+let servoAngles = [20, 50, 80, 110, 140, 170]
+for (let servoPort = 1; servoPort <= 6; servoPort++) {
+    kroma.setServoAngle(servoPort, servoAngles[servoPort - 1])
+}
+
 // Task 10 — event blocks (DIG-5, ANA-5). See docs/ARQUITECTURA.md §2.3.
 kroma.onDigitalPortEvent(1, true, function () {
     basic.showIcon(IconNames.Yes)

@@ -1,4 +1,5 @@
 {
+    "kroma.setServoAngle": "Mueve el servo conectado a un puerto a un ángulo, en grados.",
     "kroma.digitalOutput": "Enciende o apaga la línea digital de un puerto.",
     "kroma.analogOutput": "Fija la salida analógica de los puertos 4 o 6, en una escala de 0 a 100.",
     "kroma.digitalInput": "Lee el estado de la línea digital de un puerto.",

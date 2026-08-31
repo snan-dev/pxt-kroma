@@ -123,7 +123,23 @@ Las tablas de `ARQUITECTURA.md` sección 4 se apoyan en esta correspondencia. Si
 
 ## V3 — Servos
 
-*(Se completa al cerrar la tarea 4. Verifica SRV-1 a SRV-3.)*
+**Verifica:** SRV-1, SRV-2, SRV-3.
+
+Sin código de proveedor para el PCA9685 (§8 de `ARQUITECTURA.md`), esta verificación pesa más de lo habitual: no hubo una segunda fuente contra la cual detectar un error de traducción del datasheet antes de llegar acá.
+
+**Qué conectar:** un servo SG90 en cada uno de los seis puertos.
+
+**Qué ejecutar:** el programa de prueba de `test.ts` (Tarea 4) — `setServoAngle` a un ángulo distinto en cada uno de los seis puertos, dejado sin más instrucciones después.
+
+**Qué observar:**
+- **SRV-1:** el servo alcanza posiciones visiblemente distintas para ángulos distintos, en los seis puertos.
+- **SRV-2:** tras ordenar una posición y esperar treinta segundos sin ejecutar nada más, el servo sigue en esa posición y resiste un empuje suave.
+- **SRV-3:** con los seis servos conectados a la vez (o al menos tres), las posiciones ordenadas se mantienen todas simultáneamente.
+- **Chequeo adicional, no pedido por la especificación pero relevante para el rango de pulso elegido (500–2400 µs, datasheet del SG90):** observar los extremos (0° y 180°) en cada uno de los seis SG90 del kit. Si alguno gruñe, vibra o se traba, angostar el rango de pulso (por ejemplo a 600–2400 µs) en `servos.ts` antes de cerrar y dejar el valor final y su motivo acá y en `ARQUITECTURA.md` §8 — los clones de SG90 tienen variación de calibración conocida entre unidades, puede no ser uniforme entre los seis.
+
+**Resultado:** Pendiente de verificación física con la placa.
+
+**Quedan fuera de esta verificación** (dependen de una tarea que todavía no cierra): la verificación cruzada con motores (Tarea 5, MOT-6) y la reverificación de SAL-3 con servos reales en movimiento (Tarea 9, ya cerrada con código pero con V6 pendiente en la placa).
 
 ---
 
