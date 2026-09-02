@@ -13,7 +13,8 @@ namespace kroma {
     // If V4 finds the motor needs a lower frequency, step down this ladder
     // (50us/20kHz, 100us/10kHz, 250us/4kHz — each step trades audible
     // margin for torque) and record the final value and why in
-    // ARQUITECTURA.md §8.
+    // ARQUITECTURA.md §8 (D-MOT-a). Ladder criteria and the T1-T4 test
+    // script that exercises it live in docs/VERIFICACION.md V4.
     const MOTOR_PWM_PERIOD_US = 40
 
     let initialized = false

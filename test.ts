@@ -50,7 +50,8 @@ for (let sweepPort = 4; sweepPort <= 6; sweepPort += 2) {
 
 // Task 5 — motors (MOT-1 to MOT-6). Button-triggered, unlike the sequential
 // routines above, so each one can be run on its own with the board in hand
-// instead of sitting through every earlier routine first.
+// instead of sitting through every earlier routine first. What to connect
+// and what to observe for each routine: docs/VERIFICACION.md V4.
 // T1: button A. T2: button B. T3: buttons A+B. T4: shake gesture.
 
 // T1 — direction and speed (MOT-1, MOT-2). Each motor forward then backward
