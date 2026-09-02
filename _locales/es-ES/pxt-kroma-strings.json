@@ -12,9 +12,9 @@
     "kroma.analogInput|block": "leer valor analógico del puerto %port",
     "kroma.onDigitalPortEvent|block": "cuando el puerto %port pase a %state",
     "kroma.onAnalogCompareEvent|block": "cuando la lectura del puerto %port %op %threshold",
-    "KromaCompareOp.Equal|block": "=",
-    "KromaCompareOp.LessThan|block": "<",
-    "KromaCompareOp.GreaterThan|block": ">",
-    "MotorDirection.Forward|block": "adelante",
-    "MotorDirection.Backward|block": "atrás"
+    "kroma.KromaCompareOp.Equal|block": "=",
+    "kroma.KromaCompareOp.LessThan|block": "<",
+    "kroma.KromaCompareOp.GreaterThan|block": ">",
+    "kroma.MotorDirection.Forward|block": "adelante",
+    "kroma.MotorDirection.Backward|block": "atrás"
 }
