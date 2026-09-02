@@ -34,6 +34,13 @@ namespace kroma {
         B = 2,
     }
 
+    export enum MotorDirection {
+        //% block="forward"
+        Forward = 0,
+        //% block="backward"
+        Backward = 1
+    }
+
     // Shared by the analog compare event today (ANA-5) and the distance
     // compare event when Task 6 implements it (ULT-4) — not declared twice.
     // GEN-6: each member name is as permanent as a blockId once a docente
@@ -106,13 +113,46 @@ namespace kroma {
         return findPortEntry(port).port
     }
 
+    // Shape of a MOTOR_TABLE row. Declared outside the @table markers, same
+    // reasoning as PortEntry above (§6.5). forwardLevel is the direction-pin
+    // level that means "forward" for this row: the board drives the two
+    // TB6612 direction inputs from a single pin per motor plus a hardware
+    // inverter (HARDWARE.md §6.1), and which of the two channels gets the
+    // direct vs. inverted signal isn't documented and might not match
+    // between motors. Absorbing that possible cross into the table (like
+    // the other documented crosses, §6.4) means a wrong value is a one-field
+    // fix here instead of a special case in motors.ts.
+    export type MotorEntry = {
+        motor: number
+        label: string
+        speedPin: number
+        directionPin: number
+        forwardLevel: number
+    }
+
     // @table:motors:start
-    export const MOTOR_TABLE = [
-        { label: "A", speedPin: 8, directionPin: 16 },
-        { label: "B", speedPin: 15, directionPin: 14 },
+    export const MOTOR_TABLE: MotorEntry[] = [
+        { motor: 1, label: "A", speedPin: 8, directionPin: 16, forwardLevel: 1 },
+        { motor: 2, label: "B", speedPin: 15, directionPin: 14, forwardLevel: 1 },
     ]
     export const MOTOR_STANDBY_PIN = 13
     // @table:motors:end
+
+    // Same "clamp, don't fail silently" spirit as findPortEntry: a docente
+    // in the JavaScript view can write kroma.setMotorSpeed(7, ...) even
+    // though Motor is a 2-option enum, since a numeric TS enum doesn't stop
+    // an arbitrary number from compiling. Falls back to the nearest valid
+    // motor instead of doing nothing (precedent set for Task 9's
+    // "invalid port from outside the selector", ARQUITECTURA.md §8).
+    export function findMotorEntry(motor: number): MotorEntry {
+        let rounded = Math.round(motor)
+        if (rounded < 1) rounded = 1
+        if (rounded > 2) rounded = 2
+        for (let i = 0; i < MOTOR_TABLE.length; i++) {
+            if (MOTOR_TABLE[i].motor === rounded) return MOTOR_TABLE[i]
+        }
+        return MOTOR_TABLE[0] // unreachable: rounded is always 1-2, and every value has a row
+    }
 
     export const I2C_ADDRESSES = {
         PCA9685: 0x40, // Servos

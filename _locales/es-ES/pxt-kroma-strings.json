@@ -1,8 +1,11 @@
 {
     "{id:subcategory}Input": "Entrada",
     "{id:subcategory}Output": "Salida",
+    "{id:subcategory}Motors": "Motores",
     "{id:subcategory}Servos": "Servos",
     "kroma.setServoAngle|block": "mover servo del puerto %port a %angle grados",
+    "kroma.setMotorSpeed|block": "mover motor %motor hacia %direction a velocidad %speed",
+    "kroma.stopAllMotors|block": "detener todos los motores",
     "kroma.digitalOutput|block": "escribir en el puerto %port el valor %value",
     "kroma.analogOutput|block": "escribir en el puerto %port el valor analógico %value",
     "kroma.digitalInput|block": "leer estado digital del puerto %port",
@@ -11,5 +14,7 @@
     "kroma.onAnalogCompareEvent|block": "cuando la lectura del puerto %port %op %threshold",
     "KromaCompareOp.Equal|block": "=",
     "KromaCompareOp.LessThan|block": "<",
-    "KromaCompareOp.GreaterThan|block": ">"
+    "KromaCompareOp.GreaterThan|block": ">",
+    "MotorDirection.Forward|block": "adelante",
+    "MotorDirection.Backward|block": "atrás"
 }

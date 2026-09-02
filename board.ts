@@ -101,6 +101,35 @@ namespace kroma {
     }
 
     /**
+     * Moves a motor in a direction at a speed. Speed 0 stops the motor,
+     * which keeps spinning briefly on its own before coming to a stop.
+     * @param motor the motor to move
+     * @param direction which way to turn
+     * @param speed how fast, from 0 (stopped) to 100 (maximum)
+     */
+    //% blockId="kromaSetMotorSpeed"
+    //% block="move motor %motor %direction at speed %speed"
+    //% speed.min=0 speed.max=100 speed.defl=50
+    //% motor.defl=Motor.A
+    //% subcategory="Motors"
+    //% weight=100
+    export function setMotorSpeed(motor: Motor, direction: MotorDirection, speed: number): void {
+        driveMotor(motor, direction, speed)
+    }
+
+    /**
+     * Stops both motors at once. They keep spinning briefly on their own
+     * until they come to a stop.
+     */
+    //% blockId="kromaStopAllMotors"
+    //% block="stop all motors"
+    //% subcategory="Motors"
+    //% weight=90
+    export function stopAllMotors(): void {
+        stopMotors()
+    }
+
+    /**
      * Moves the servo connected to a port to an angle.
      * @param port the port the servo is connected to
      * @param angle the angle to move to, in degrees

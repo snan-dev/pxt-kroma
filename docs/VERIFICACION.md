@@ -139,13 +139,34 @@ Sin código de proveedor para el PCA9685 (§8 de `ARQUITECTURA.md`), esta verifi
 
 **Resultado:** Pendiente de verificación física con la placa.
 
-**Quedan fuera de esta verificación** (dependen de una tarea que todavía no cierra): la verificación cruzada con motores (Tarea 5, MOT-6) y la reverificación de SAL-3 con servos reales en movimiento (Tarea 9, ya cerrada con código pero con V6 pendiente en la placa).
+**Verificación cruzada con motores:** ver T4 en V4 (Tarea 5, ya con código) — con motores a velocidad media, los servos no deben vibrar ni perder posición.
+
+**Reverificación de SAL-3 con servos reales en movimiento:** Tarea 9, ya cerrada con código pero con V6 pendiente en la placa.
 
 ---
 
 ## V4 — Motores
 
-*(Se completa al cerrar la tarea 5. Verifica MOT-1 a MOT-6, más la interacción con servos.)*
+**Verifica:** MOT-1 a MOT-6, más la interacción con servos (Tarea 5) y con la salida analógica (Tarea 9, si ya cerrada).
+
+**Qué conectar:** un motor DC en el conector rotulado A y otro en el B. Para T4, además, dos servos SG90 en dos puertos de periférico y un LED con resistencia entre los contactos 4 y 5 de otro puerto (4 o 6).
+
+**Qué ejecutar:** el programa de prueba de `test.ts` (Tarea 5), disparado a mano con la placa en la mano: T1 con el botón A, T2 con el botón B, T3 con los botones A+B, T4 sacudiendo la placa.
+
+**Qué observar:**
+
+- **MOT-1 (T1):** cada motor gira, el sentido cambia al cambiar el enumerado, y una velocidad más alta gira visiblemente más rápido. Y los dos motores giran para el mismo lado con el mismo valor de dirección. Si no coinciden: invertir el cable de ese motor en el RJ45 y repetir. Si el síntoma se mueve con el cable, es cableado del aula y no se toca nada. Si el síntoma se queda con el motor, es un cruce de la placa y se corrige el `forwardLevel` de esa fila en `MOTOR_TABLE`, dejando constancia acá y en `ARQUITECTURA.md` §4.2 y §8.
+- **MOT-2 (T1):** el motor enchufado al conector impreso **A** responde al valor A.
+- **MOT-3 (T3):** con velocidad 0 el motor se detiene sin frenar en seco, girando un poco por inercia. Y el otro motor sigue andando.
+- **MOT-4 (T3):** `stopAllMotors` detiene los dos. Y el paso siguiente de T3 es el que importa: dar velocidad solo a A no debe mover B. Si B arranca, la implementación no respetó el orden de D-MOT-d.
+- **MOT-5:** la paleta de la subcategoría Motores contiene exactamente dos bloques y ninguno sugiere freno. Verificable en el editor, sin placa.
+- **MOT-6 (T2), el criterio central:** con el motor sin carga a la velocidad mínima que lo hace girar, el giro es continuo y no se percibe un tono agudo constante. Escuchar con la sala en silencio y, si hay alguien más, que escuche también alguien joven: la banda que hay que descartar llega más arriba para un chico de primaria que para un adulto. Anotar tres cosas: a qué valor de velocidad arranca cada motor, si el giro es parejo en ese valor, y si se oye algo.
+- **Escalera de D-MOT-a:** si a 40 µs el motor arranca a un valor mucho más alto que a 250 µs, o el torque cae, o quedan pocos escalones útiles de velocidad, bajar un escalón (40 → 50 → 100 → 250 µs) y repetir T2 completo. Registrar acá el valor final, el motivo y los valores de arranque medidos en cada escalón probado. Si hay que llegar al escalón 3 o 4, MOT-6 queda en riesgo: abrir hallazgo en `PENDIENTES.md` antes de cerrar.
+- **Micro:bit V1 y V2 (consulta 6 de `PENDIENTES.md`):** correr T2 completo en las dos versiones si hay ambas. El PWM de la V1 es de generación distinta y un período de 40 µs puede comportarse peor ahí. Anotar cuál se probó, aunque sea una sola.
+- **Cruzada con servos y salida analógica (T4, cierra el pendiente de V3 y de V6, §3.9, hallazgo 4 de `PENDIENTES.md`):** con motores a velocidad media, los servos no vibran ni se mueven de su posición; el LED de salida analógica no cambia de brillo ni parpadea distinto respecto de como estaba antes de arrancar los motores; y los motores no cambian de comportamiento al ordenar un servo nuevo. Esto es lo que descarta el conflicto de canales internos de PWM que `PLAN-DE-TAREAS.md` pide verificar en esta tarea.
+- **Cuántas salidas de PWM nativo hay a la vez.** Los motores ocupan dos (P8, P15) y la salida analógica una tercera (P9 o P12). Algunas versiones del runtime del micro:bit sostienen un número acotado de salidas analógicas simultáneas, y con T4 estamos justo en el borde. Si en T4 alguna de las tres deja de responder mientras las otras andan, es esto y no un bug de lógica: anotarlo como hallazgo, con la versión de micro:bit y de runtime. Los servos no entran en la cuenta — van por el PCA9685, no por PWM nativo.
+
+**Resultado:** Pendiente de verificación física con la placa.
 
 ---
 
@@ -170,7 +191,7 @@ Sin código de proveedor para el PCA9685 (§8 de `ARQUITECTURA.md`), esta verifi
 
 **Resultado:** Pendiente de verificación física con la placa.
 
-**Verificación cruzada con motores (§3.9, hallazgo 4 de `PENDIENTES.md`):** con la Tarea 5 (motores) todavía sin cerrar, la verificación cruzada de período de PWM entre motores y salida analógica queda pendiente hasta que esa tarea se implemente — no bloquea el cierre de SAL-1/2/3 por sí sola (`PLAN-DE-TAREAS.md`, Tarea 9).
+**Verificación cruzada con motores (§3.9, hallazgo 4 de `PENDIENTES.md`):** ver T4 en V4 (Tarea 5, ya con código) — con la salida analógica activa y los motores a velocidad media, ninguno de los dos debe perder el período que configuró. No bloquea el cierre de SAL-1/2/3 por sí sola (`PLAN-DE-TAREAS.md`, Tarea 9).
 
 ---
 
