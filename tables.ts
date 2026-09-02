@@ -103,6 +103,20 @@ namespace kroma {
         return PORT_TABLE[0] // unreachable: rounded is always 1-6, and every value has a row
     }
 
+    // Shared fallback for blocks restricted to NativeDigitalPort (4/6, no
+    // shadow — §2.2: distance sensor, analog output). A docente in the
+    // JavaScript view can still call e.g. kroma.readDistance(2), since a
+    // numeric TS enum doesn't stop an out-of-range value from compiling,
+    // bypassing the Blockly selector. Falls back to the nearer of the two
+    // valid ports instead of doing nothing silently — precedent set closing
+    // Task 9 (ARQUITECTURA.md §8, "Puerto inválido llegado por fuera del
+    // selector"). Centralized here instead of duplicated per driver (§6.4).
+    export function findNativeDigitalPortEntry(port: number): PortEntry {
+        let entry = findPortEntry(port)
+        if (entry.digital.type === "native") return entry
+        return findPortEntry(entry.port <= 4 ? 4 : 6)
+    }
+
     // Thin wrapper around findPortEntry's own rounding/clamping (GEN-5), for
     // call sites that need the resolved port number itself rather than a
     // PORT_TABLE row — events.ts stores it in a long-lived watch record, so

@@ -166,3 +166,19 @@ for (let port = 1; port <= 6; port++) {
         basic.pause(200)
     }
 }
+
+// Task 6 — distance sensor (ULT-1 to ULT-4). Continuous reading on the two
+// native ports, plus a compare event to exercise ULT-4 without watching the
+// serial console.
+for (let distancePort of [kroma.NativeDigitalPort.Port4, kroma.NativeDigitalPort.Port6]) {
+    serial.writeLine("=== distance port " + distancePort + " ===")
+    let distanceStart = input.runningTime()
+    while (input.runningTime() - distanceStart < 5000) {
+        serial.writeLine("  " + kroma.readDistanceCm(distancePort))
+        basic.pause(200)
+    }
+}
+
+kroma.onDistanceCompareEvent(kroma.NativeDigitalPort.Port4, kroma.KromaCompareOp.LessThan, 20, function () {
+    basic.showIcon(IconNames.SmallDiamond)
+})

@@ -145,6 +145,45 @@ namespace kroma {
         moveServo(port, angle)
     }
 
+    /**
+     * Reads the distance measured by the ultrasonic sensor connected to a
+     * port, in centimeters.
+     * @param port the port the sensor is connected to
+     * @return the distance in centimeters, or -1 if no echo was detected
+     */
+    //% blockId="kromaReadDistance"
+    //% block="read distance from port %port in centimeters"
+    //% subcategory="Distance"
+    //% weight=100
+    export function readDistanceCm(port: NativeDigitalPort): number {
+        return readDistance(port)
+    }
+
+    /**
+     * Runs code once when the distance measured by the sensor crosses the
+     * chosen threshold, in centimeters. A reading with no echo never
+     * triggers this block.
+     * @param port the port the sensor is connected to
+     * @param op the comparison to trigger on
+     * @param value a distance in centimeters
+     */
+    //% blockId="kromaOnDistanceCompareEvent"
+    //% block="when distance from port %port %op %value"
+    //% value.min=0 value.max=300 value.defl=10
+    //% subcategory="Distance"
+    //% weight=90
+    export function onDistanceCompareEvent(port: NativeDigitalPort, op: KromaCompareOp, value: number, handler: () => void): void {
+        // Same normalization onDigitalPortEvent/onAnalogCompareEvent do with
+        // clampPort — here via findNativeDigitalPortEntry (tables.ts) so a
+        // port value that reached here from outside the Blockly selector
+        // registers the watch under the actual 4/6 port it falls back to,
+        // not under its own unnormalized value.
+        let p = findNativeDigitalPortEntry(port).port
+        let v = Math.round(value)
+        watchDistance(p, op, v)
+        control.onEvent(distanceSource(p, op), v, handler)
+    }
+
     // Default shadow block plugged into the port parameter of any block
     // using the full 6-port enumeration (ARQUITECTURA.md §2.2). Being a
     // real block (not an inlined field) is what lets a docente unplug the

@@ -229,7 +229,7 @@ Una tarea **no arranca** si toca un requisito con una ambigüedad sin resolver. 
 | D3 | Ganancia por defecto del conversor analógico | ANA-3, ANA-4 | **Resuelta (2026-08-29):** ganancia GAIN_ONE (±4,096 V) del ADS1015 — el rango más chico que contiene la tensión de trabajo esperada (3,3 V) sin saturar. Ver `ARQUITECTURA.md` §8. |
 | D4 | Idioma de las cadenas fuente | GEN-2, GEN-3 | **Resuelta (revisada 2026-08-29):** código fuente en inglés, con capa de localización en `_locales/es-ES/` para el docente. Ver `ARQUITECTURA.md` §8 y la Tarea 8 de `PLAN-DE-TAREAS.md`. |
 | D5 | Nombre definitivo del paquete y del repositorio | GEN-6 | **Resuelta:** paquete y repositorio `pxt-kroma`, nombre visible KROMA |
-| D6 | Margen de tolerancia declarado para ANA-2, ANA-3, ANA-4, ULT-1, ULT-3 y ULT-4 | ULT-1, ULT-3, ULT-4 | **Resuelta para ANA-2/3/4 (2026-08-29)**, ver `ARQUITECTURA.md` §8. Sigue **abierta para ULT-1, ULT-3 y ULT-4** — se resuelve al planificar la Tarea 6. |
+| D6 | Margen de tolerancia declarado para ANA-2, ANA-3, ANA-4, ULT-1, ULT-3 y ULT-4 | ULT-1, ULT-3, ULT-4 | **Resuelta.** Para ANA-2/3/4, ver `ARQUITECTURA.md` §8 (2026-08-29). Para ULT-1, ULT-3 y ULT-4, resuelta el 2026-09-02 al planificar la Tarea 6: alcance máximo 300 cm (más allá, o sin eco, el bloque devuelve -1, ULT-3); precisión de ULT-1 el mayor entre ±2 cm y 5% de la lectura; ULT-4 usa ese mismo margen como ventana de igualdad para "=", y una lectura sin eco no dispara ningún operador. Ver `ARQUITECTURA.md` §8. |
 
 ---
 

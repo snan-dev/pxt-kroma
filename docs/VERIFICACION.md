@@ -172,7 +172,22 @@ Sin código de proveedor para el PCA9685 (§8 de `ARQUITECTURA.md`), esta verifi
 
 ## V5 — Sensor de distancia
 
-*(Se completa al cerrar la tarea 6. Verifica ULT-1 a ULT-3.)*
+**Verifica:** ULT-1 a ULT-4.
+
+**Qué conectar:** el sensor ultrasónico de 5 V en el puerto 4; repetir todo el procedimiento en el puerto 6.
+
+**Qué ejecutar y observar:**
+
+- **ULT-1 (precisión):** con `readDistanceCm` mostrado por el puerto serie, medir con una regla distancias conocidas en varios puntos del rango (cerca, medio, cerca del máximo de 300 cm) y comparar contra el valor leído. No debe diferir del real en más del mayor entre 2 cm y 5% de la lectura (margen declarado en `ARQUITECTURA.md` §8).
+- **ULT-2 (puertos imposibles de equivocar):** el selector del bloque en el editor no ofrece ninguna opción distinta de 4 y 6 — verificable leyendo el bloque, sin necesidad de la placa.
+- **ULT-3 (fuera de alcance):** apuntando el sensor al vacío (sin nada enfrente dentro de los 300 cm), el bloque devuelve consistentemente **-1** en varias lecturas seguidas.
+- **ULT-4 (evento de comparación):** con `onDistanceCompareEvent` configurado con un umbral fijo, acercar y alejar un objeto cruzando ese umbral en ambos sentidos. El bloque se ejecuta una vez por cruce, no se ejecuta repetidamente mientras el objeto se mantiene del mismo lado, y una lectura sin eco (apuntando al vacío) nunca dispara el bloque, incluso con el operador "<" y un umbral alto.
+
+**Resultado:** Pendiente de verificación física con la placa.
+
+**Sospechoso principal si la lectura es errática o siempre -1:** `ultrasonic.ts` dispara el trigger y mide el eco sobre el mismo pin, reconfigurándolo de salida a entrada apenas termina el pulso — a diferencia de los drivers de referencia de este sensor, que suelen usar dos pines separados. No se pudo confirmar contra el código fuente real de `pins.pulseIn` en `pxt-microbit` que esto funcione igual (no hay `libs/core` vendorizado localmente). Si V5 falla, revisar esto antes que cualquier otra hipótesis.
+
+**Nota de timing (no bloquea el cierre, ver el documento de implementación de la Tarea 6 §4.3):** si hay watches de distancia registrados junto con watches digitales o analógicos, el ciclo del fiber puede tardar más que `POLL_INTERVAL_MS` cuando le toca sondear un puerto de distancia sin eco (hasta 17,4 ms de timeout). Confirmar con la placa que esto no afecta la reactividad percibida de los demás eventos.
 
 ---
 

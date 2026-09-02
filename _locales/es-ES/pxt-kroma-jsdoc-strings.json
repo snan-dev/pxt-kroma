@@ -7,5 +7,7 @@
     "kroma.digitalInput": "Lee el estado de la línea digital de un puerto.",
     "kroma.analogInput": "Lee la entrada analógica de un puerto, en una escala de 0 a 100.",
     "kroma.onDigitalPortEvent": "Ejecuta un bloque de código cuando la línea digital de un puerto pasa al estado elegido.",
-    "kroma.onAnalogCompareEvent": "Ejecuta un bloque de código cuando la lectura analógica de un puerto cruza el umbral elegido, en una escala de 0 a 100."
+    "kroma.onAnalogCompareEvent": "Ejecuta un bloque de código cuando la lectura analógica de un puerto cruza el umbral elegido, en una escala de 0 a 100.",
+    "kroma.readDistanceCm": "Lee la distancia medida por el sensor ultrasónico conectado a un puerto, en centímetros. Si no detecta ningún objeto cerca, devuelve -1 en vez de una distancia.",
+    "kroma.onDistanceCompareEvent": "Ejecuta un bloque de código cuando la distancia medida por el sensor cruza el umbral elegido, en centímetros. Una lectura sin eco nunca dispara este bloque."
 }

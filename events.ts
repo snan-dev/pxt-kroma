@@ -11,6 +11,12 @@ namespace kroma {
     // Same margin already declared for ANA-2 (ARQUITECTURA.md §8) — not a
     // new value invented here.
     const ANALOG_EQUAL_TOLERANCE = 3
+    // Distance "=" window (ULT-4, ARQUITECTURA.md §8, D6 resolved
+    // 2026-09-02): the greater of a fixed floor and a percentage of the
+    // reading, unlike the fixed ANALOG_EQUAL_TOLERANCE — a percentage alone
+    // would give an unusably tight window on a close reading.
+    const DISTANCE_EQUAL_TOLERANCE_CM = 2
+    const DISTANCE_EQUAL_TOLERANCE_PCT = 0.05
 
     interface DigitalWatch {
         port: number
@@ -29,13 +35,25 @@ namespace kroma {
         stableCount: number
     }
 
+    interface DistanceWatch {
+        port: number
+        op: KromaCompareOp
+        threshold: number    // centimeters
+        lastSatisfied: boolean
+        candidate: boolean
+        stableCount: number
+    }
+
     interface DigitalSourceEntry { port: number; source: number }
     interface AnalogSourceEntry { port: number; op: KromaCompareOp; source: number }
+    interface DistanceSourceEntry { port: number; op: KromaCompareOp; source: number }
 
     let digitalWatches: DigitalWatch[] = []
     let analogWatches: AnalogWatch[] = []
+    let distanceWatches: DistanceWatch[] = []
     let digitalSources: DigitalSourceEntry[] = []
     let analogSources: AnalogSourceEntry[] = []
+    let distanceSources: DistanceSourceEntry[] = []
     let initialized = false
 
     // One control.onEvent source per condition family, allocated on first
@@ -65,6 +83,15 @@ namespace kroma {
         return source
     }
 
+    function distanceEventSource(port: number, op: KromaCompareOp): number {
+        for (let i = 0; i < distanceSources.length; i++) {
+            if (distanceSources[i].port === port && distanceSources[i].op === op) return distanceSources[i].source
+        }
+        let source = control.allocateEventSource()
+        distanceSources.push({ port: port, op: op, source: source })
+        return source
+    }
+
     // --- Registration, called from board.ts when a docente's event block
     // is declared (once per handler, at program start) ---
 
@@ -85,12 +112,25 @@ namespace kroma {
         analogWatches.push({ port: port, op: op, threshold: threshold, lastSatisfied: false, candidate: false, stableCount: 0 })
     }
 
+    export function watchDistance(port: number, op: KromaCompareOp, threshold: number): void {
+        ensureInitialized()
+        for (let i = 0; i < distanceWatches.length; i++) {
+            let w = distanceWatches[i]
+            if (w.port === port && w.op === op && w.threshold === threshold) return
+        }
+        distanceWatches.push({ port: port, op: op, threshold: threshold, lastSatisfied: false, candidate: false, stableCount: 0 })
+    }
+
     export function digitalSource(port: number): number {
         return digitalEventSource(port)
     }
 
     export function analogSource(port: number, op: KromaCompareOp): number {
         return analogEventSource(port, op)
+    }
+
+    export function distanceSource(port: number, op: KromaCompareOp): number {
+        return distanceEventSource(port, op)
     }
 
     // Reusable comparison: ANA-5 today, ULT-4 (Task 6) later. "Equal" is not
@@ -169,6 +209,30 @@ namespace kroma {
             let satisfied = checkCompare(reading, w.op, w.threshold, ANALOG_EQUAL_TOLERANCE)
             if (updateStable(w, satisfied)) {
                 control.raiseEvent(analogEventSource(w.port, w.op), w.threshold)
+            }
+        }
+
+        let distancePorts: number[] = []
+        for (let i = 0; i < distanceWatches.length; i++) {
+            if (distancePorts.indexOf(distanceWatches[i].port) < 0) distancePorts.push(distanceWatches[i].port)
+        }
+        let distanceReadings: number[] = []
+        for (let i = 0; i < distancePorts.length; i++) distanceReadings.push(readDistance(distancePorts[i]))
+
+        for (let i = 0; i < distanceWatches.length; i++) {
+            let w = distanceWatches[i]
+            let reading = distanceReadings[distancePorts.indexOf(w.port)]
+            // No echo (-1, ULT-3): discarded for every distance watch on
+            // this port, not just this one — confirms no transition either
+            // way, the fiber just retries next cycle (ARQUITECTURA.md §8).
+            // With -1 participating in the comparison, a "< 10" watch would
+            // fire continuously while nothing is in range (-1 < 10 always),
+            // the opposite of what ULT-4 means by "object nearby".
+            if (reading === -1) continue
+            let tolerance = Math.max(DISTANCE_EQUAL_TOLERANCE_CM, Math.round(reading * DISTANCE_EQUAL_TOLERANCE_PCT))
+            let satisfied = checkCompare(reading, w.op, w.threshold, tolerance)
+            if (updateStable(w, satisfied)) {
+                control.raiseEvent(distanceEventSource(w.port, w.op), w.threshold)
             }
         }
     }

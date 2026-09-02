@@ -34,19 +34,11 @@ namespace kroma {
     export function writeAnalogOutput(port: number, value: number): void {
         ensureInitialized()
         let level = clamp(value)
-        let entry = findPortEntry(port)
-        if (entry.digital.type !== "native") {
-            // Reachable only from the JavaScript view of the editor: a
-            // numeric TS enum doesn't stop `kroma.analogOutput(2, ...)` from
-            // compiling, bypassing the Blockly selector that restricts
-            // %port to 4/6 (board.ts, NativeDigitalPort, no shadow). Falls
-            // back to the nearer of the two valid ports instead of doing
-            // nothing silently — SAL-2 rules out silent failure, and
-            // findPortEntry already uses the same "clamp, don't fail
-            // silently" spirit for the full 1-6 range. Precedent for the
-            // Task 6 (distance sensor) block, which shares NativeDigitalPort.
-            entry = findPortEntry(entry.port <= 4 ? 4 : 6)
-        }
+        // findNativeDigitalPortEntry (tables.ts) resolves the port and
+        // falls back to the nearer of 4/6 for a value that reached here
+        // from outside the Blockly selector (JavaScript view) — shared with
+        // ultrasonic.ts instead of duplicated (§6.4).
+        let entry = findNativeDigitalPortEntry(port)
         if (entry.digital.type === "native") {
             pins.analogWritePin(nativePin(entry.digital.pin), Math.round(level * 1023 / 100))
         }
