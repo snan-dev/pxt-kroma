@@ -42,7 +42,12 @@ function extraerFragmento(fuente, nombreTabla) {
 // Dentro de un fragmento puede haber una o más declaraciones
 // "export const NOMBRE = <literal>". Devuelve { NOMBRE: valor, ... }.
 function evaluarDeclaraciones(fragmento) {
-    const regexDeclaracion = /export\s+const\s+(\w+)\s*=\s*/g;
+    // El grupo ":[^=]+" opcional tolera una anotación de tipo en la propia
+    // declaración ("export const NOMBRE: Tipo = ..."), permitida por
+    // ARQUITECTURA.md §6.5 porque anota la constante, no el literal: el
+    // valor extraído (todo lo que sigue al "=") no cambia y sigue siendo
+    // JavaScript puro.
+    const regexDeclaracion = /export\s+const\s+(\w+)\s*(?::[^=]+)?=\s*/g;
     const coincidencias = [];
     let m;
     while ((m = regexDeclaracion.exec(fragmento)) !== null) {

@@ -2,6 +2,9 @@
     "name": "pxt-kroma",
     "version": "0.0.0",
     "description": "KROMA — bloques para la placa controladora y expansora de Plan Ceibal: motores, servos, entradas analógicas, salidas digitales y sensor de distancia.",
+    "dependencies": {
+        "core": "*"
+    },
     "files": [
         "tables.ts",
         "digital.ts",
@@ -9,8 +12,9 @@
         "servos.ts",
         "motors.ts",
         "ultrasonic.ts",
+        "analogOutput.ts",
+        "events.ts",
         "board.ts",
-        "test.ts",
         "_locales/es-ES/pxt-kroma-strings.json",
         "_locales/es-ES/pxt-kroma-jsdoc-strings.json"
     ],
@@ -18,7 +22,12 @@
         "test.ts"
     ],
     "public": true,
+    "targetVersions": {
+        "target": "9.0.12",
+        "targetId": "microbit"
+    },
     "supportedTargets": [
         "microbit"
-    ]
+    ],
+    "preferredEditor": "tsprj"
 }

@@ -18,12 +18,14 @@ Toda la especificación está cubierta y ninguna tarea es huérfana.
 | GEN-2 | 7 (revisión global), 8 (verificado también en inglés) |
 | GEN-4, GEN-5 | 2 (patrón), verificado en 3 a 6 |
 | GEN-6 | 0, verificado en 8 |
-| DIG-1, DIG-2, DIG-3 | 2 |
+| DIG-1, DIG-2, DIG-3, DIG-4 | 2 |
 | ANA-1, ANA-2, ANA-3, ANA-4 | 3 |
 | SRV-1, SRV-2, SRV-3 | 4 |
 | MOT-1, MOT-2, MOT-3, MOT-4, MOT-5, MOT-6 | 5 |
-| ULT-1, ULT-2, ULT-3 | 6 |
+| ULT-1, ULT-2, ULT-3, ULT-4 | 6 |
 | DOC-1, DOC-2 | 7 |
+| SAL-1, SAL-2, SAL-3 | 9 |
+| DIG-5, ANA-5 | 10 |
 
 ---
 
@@ -59,31 +61,39 @@ Este último criterio importa: un verificador que nunca se probó contra un erro
 
 ---
 
-## Tarea 2 — Salidas digitales
+## Tarea 2 — Salidas y entradas digitales
 
-**Satisface:** DIG-1, DIG-2, DIG-3; establece el patrón para GEN-4 y GEN-5
+**Satisface:** DIG-1, DIG-2, DIG-3, DIG-4; establece el patrón para GEN-4 y GEN-5
 
-La más simple de las que tocan hardware. Valida todo el andamiaje: tablas, inicialización perezosa, separación entre bloque y driver, manejo del bus.
+La más simple de las que tocan hardware. Valida todo el andamiaje: tablas, inicialización perezosa, separación entre bloque y driver, manejo del bus. DIG-4 (lectura) se agrega por decisión de Santi del 2026-08-29 al reabrir D2: es simétrica a la escritura, mismo origen por puerto, mismo driver.
 
-**Criterios de aceptación:** los de DIG-1, DIG-2 y DIG-3 tal como están redactados en la especificación, más:
-- Un programa cuya única instrucción sea el bloque de escritura produce el efecto en la primera ejecución, sin ningún bloque previo (GEN-4).
-- El bloque no expone ningún nombre de chip, pin ni canal (GEN-2 en su porción).
+**Criterios de aceptación:** los de DIG-1, DIG-2, DIG-3 y DIG-4 tal como están redactados en la especificación, más:
+- Un programa cuya única instrucción sea el bloque de escritura, o cuya única instrucción sea el bloque de lectura, produce el efecto/resultado esperado en la primera ejecución, sin ningún bloque previo (GEN-4).
+- Ninguno de los dos bloques expone nombre de chip, pin ni canal (GEN-2 en su porción).
 - La categoría KROMA aparece en la paleta con su nombre e ícono, ahora que existe al menos un bloque exportado — verificación diferida desde la Tarea 0.
 
 **Es la tarea de referencia.** Los patrones que se fijen acá se repiten en las siguientes, y el revisor los va a usar como base de comparación.
+
+**Retoque retroactivo (2026-08-29):** los bloques `digitalOutput`/`digitalInput` pasaron de `group="Digital"` a `subcategory="Output"`/`subcategory="Input"` al adoptarse la organización de paleta en subcategorías de `ARQUITECTURA.md` §2.1. Sin impacto en `blockId` (GEN-6) ni en criterios de aceptación.
+
+**Segundo retoque retroactivo (2026-08-29):** el parámetro de puerto de ambos bloques pasa a aceptar un bloque enchufado (variable, cuenta, contador de `for`) además del desplegable, siguiendo el patrón `shadow` de `ARQUITECTURA.md` §2.2. Sin impacto en `blockId` ni en criterios de aceptación; GEN-5 ya cubre el acotamiento de valores fuera de 1–6.
 
 ---
 
 ## Tarea 3 — Entradas analógicas
 
 **Satisface:** ANA-1, ANA-2, ANA-3, ANA-4
-**Bloqueada por:** D1, D3, D6
+**Bloqueada por:** nada — D1, D3 y D6 (porción ANA) resueltas
 
 Driver del conversor por I2C para los puertos 4 a 6, y lectura de pin nativo para los puertos 1 a 3.
 
 **Criterios de aceptación:** los de ANA-1 a ANA-4 tal como están redactados, con los márgenes de tolerancia ya declarados en `ARQUITECTURA.md` como parte de la resolución de D6.
 
 **Cierre adicional:** las decisiones D1 y D3 quedan registradas con su fundamento en `ARQUITECTURA.md`, sección 8, y su estado pasa a resuelto en `ESPECIFICACION.md`.
+
+**Retoque retroactivo (2026-08-29):** `analogInput` pasó de `group="Analog"` a `subcategory="Input"` al adoptarse la organización de paleta en subcategorías de `ARQUITECTURA.md` §2.1. Sin impacto en `blockId` (GEN-6) ni en criterios de aceptación.
+
+**Segundo retoque retroactivo (2026-08-29):** el parámetro de puerto de `analogInput` pasa a aceptar un bloque enchufado, siguiendo el patrón `shadow` de `ARQUITECTURA.md` §2.2. Sin impacto en `blockId` ni en criterios de aceptación; GEN-5 ya cubre el acotamiento de valores fuera de 1–6.
 
 ---
 
@@ -108,18 +118,20 @@ Driver del TB6612 por pines directos, con bajada del período de PWM al iniciali
 
 MOT-6 es el criterio que más fácil se pasa por alto y el que primero va a notar un docente.
 
+**Verificación de interacción con la Tarea 9 (agregada 2026-08-29):** con la salida analógica activa en el puerto 4 o 6 (si la Tarea 9 ya está cerrada) y un motor girando a baja velocidad, ninguno de los dos pierde el período que configuró — ver `ARQUITECTURA.md` §3.9. Si Tarea 9 se cierra después, la verificación corre al cerrar esa.
+
 ---
 
 ## Tarea 6 — Sensor ultrasónico
 
-**Satisface:** ULT-1, ULT-2, ULT-3
+**Satisface:** ULT-1, ULT-2, ULT-3, ULT-4
 **Bloqueada por:** D6
 
-Disparo y medición de eco sobre la misma línea.
+Disparo y medición de eco sobre la misma línea. Nace directamente con el bloque de evento de ULT-4 incluido (mismo mecanismo de la Tarea 10, ver `ARQUITECTURA.md` §2.3), sin retoque retroactivo — mismo espíritu que la Tarea 4 con los puertos enchufables de §2.2.
 
-**Criterios de aceptación:** los de ULT-1 a ULT-3 tal como están redactados.
+**Criterios de aceptación:** los de ULT-1 a ULT-4 tal como están redactados.
 
-ULT-2 se verifica mirando el selector del bloque en el editor, no probando que falle en otro puerto: el requisito es que la opción no exista.
+ULT-2 se verifica mirando el selector del bloque en el editor, no probando que falle en otro puerto: el requisito es que la opción no exista. ULT-4 reutiliza el enumerado restringido a 4/6 (no enchufable, mismo motivo que ULT-2/SAL-2) y el margen de tolerancia que resuelva D6 para esta tarea.
 
 ---
 
@@ -168,6 +180,42 @@ Contexto: D4 se revierte por decisión consciente de Santi, tomada el 2026-08-29
 Quedan fuera de los criterios de aceptación, por depender de placa/editor y no ser verificables leyendo código: que el locale se vea igual en el editor de MakeCode configurado en español, y que un proyecto de docente guardado antes de esta tarea siga abriendo sin error. Ver hallazgo 3 de `PENDIENTES.md`.
 
 **Cierre adicional:** actualizar `ARQUITECTURA.md` §5 (estructura de archivos) agregando `_locales/` y los nombres de archivo si se renombraron, y §7 (flujos principales) si corresponde.
+
+---
+
+## Tarea 9 — Salida analógica
+
+**Satisface:** SAL-1, SAL-2, SAL-3
+**Agregada:** 2026-08-29, a partir de una pregunta de Santi durante la planificación de Tarea 2, sobre si la salida analógica podía apoyarse en el chip de los servos (PCA9685).
+
+No se apoya en el PCA9685: ese chip tiene una sola frecuencia compartida por los seis canales (§3.5), fijada para servos, así que cualquier puerto que dependiera de él tendría el parpadeo de 50 Hz en vez de una atenuación prolija — y no se puede variar por puerto sin afectar a los servos de los demás. La única línea capaz de dar una frecuencia propia, independiente de los servos, es el pin nativo del micro:bit — y eso solo existe en los puertos 4 y 6 (los mismos que el sensor ultrasónico, por el mismo motivo: son los únicos con pin directo). Ver `ARQUITECTURA.md` §3.8.
+
+Driver nuevo (`analogOutput.ts`) usando `pins.analogWritePin` sobre P9/P12, sin tocar el PCA9685 en absoluto.
+
+**Confirmado (2026-08-29), ya no es solo un punto a verificar:** el período de PWM nativo del micro:bit no es independiente por pin — ver `ARQUITECTURA.md` §3.9 y `microsoft/pxt-microbit#4950`. No afecta a los servos (van por PCA9685/I2C), pero sí puede interactuar con los motores de la Tarea 5, que también ajustan el período de un pin nativo.
+
+**Criterios de aceptación:** los de SAL-1, SAL-2 y SAL-3 tal como están redactados, más:
+- El bloque no expone la palabra "PWM" ni ninguna otra del vocabulario prohibido por GEN-2.
+- Valores fuera de 0–100 se acotan al extremo correspondiente (GEN-5).
+- Con un motor girando a baja velocidad (Tarea 5, si ya está cerrada) y la salida analógica activa, ninguno de los dos pierde el período que configuró. Si Tarea 5 se cierra después, la verificación corre al cerrar esa.
+
+---
+
+## Tarea 10 — Bloques de evento
+
+**Satisface:** DIG-5, ANA-5
+**Agregada:** 2026-08-30, a partir de un pedido de Santi de bloques reactivos ("cuando...") para los puertos digitales y analógicos, con la categoría Distancia dejada planeada para cuando se implemente la Tarea 6 (ver ULT-4 ahí).
+**Bloqueada por:** nada — Tareas 2 y 3 ya cerradas con código.
+
+Mecanismo nuevo: un fiber en segundo plano (`control.inBackground`) que arranca solo la primera vez que se registra algún bloque de evento —misma inicialización perezosa que `ensureInitialized()` de §6.2—, sondea los puertos con algún evento registrado y dispara con `control.raiseEvent` una sola vez por transición hacia la condición pedida (no en cada sondeo mientras se sostiene). Ver `ARQUITECTURA.md` §2.3 para la forma pública de los bloques.
+
+**Criterios de aceptación:** los de DIG-5 y ANA-5 tal como están redactados en la especificación, más:
+- El intervalo de sondeo y el mecanismo de antirrebote no producen disparos repetidos para una misma transición, verificado con la placa.
+- Con dos bloques de evento registrados en el mismo puerto y condición, ambos se ejecutan — comportamiento estándar de `control.onEvent`, no hace falta lógica propia para permitirlo.
+- El operador "=" de ANA-5 usa el margen ya declarado para ANA-2 (`ARQUITECTURA.md` §8), no una igualdad exacta — con el potenciómetro detenido dentro de ese margen del umbral, el bloque se ejecuta; fuera de ese margen, no.
+- El parámetro de puerto de ambos bloques acepta un bloque enchufado (variable, cuenta, contador de `for`), igual que el resto de los bloques con el enumerado completo de 6 puertos (§2.2) — incluye verificar qué pasa al enchufar el mismo bloque de evento dentro de un `for`: registra un evento por iteración, comportamiento esperado y documentado, no un error.
+
+**Cierre adicional:** verificar contra `pxt-microbit/libs/core/input.ts` (no asumir) que la fuente de evento elegida no colisiona con las que ya usa el target, antes de fijar el `blockId` definitivo.
 
 ---
 
